@@ -1,7 +1,10 @@
 ﻿using Entidades;
+using Entidades.Arrays;
 using Servicios;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Data.SqlClient;
 using System.Net.Http;
 using System.Web.Http;
 
@@ -9,8 +12,13 @@ namespace TaxistTeodoro.Areas.api
 {
     public class DriverController : ApiController
     {
+        private readonly ServicioDriver _servicioDriver;
+        public DriverController()
+        {
+            _servicioDriver = new ServicioDriver();
+        }
         // GET: api/Cliente
-        
+
         public HttpResponseMessage Get()
         {
             var entidad = new listDrivers();
@@ -25,63 +33,81 @@ namespace TaxistTeodoro.Areas.api
         {
             var entidad = new Driver();
             ServicioDriver srv = new ServicioDriver();
-            
-            entidad = srv.consultarDriver(id);
-            var response = Request.CreateResponse<Driver>(System.Net.HttpStatusCode.Created, entidad);
-            return response;
+                entidad = srv.consultarDriver(id);
+                var response = Request.CreateResponse<Driver>(System.Net.HttpStatusCode.Created, entidad);
+                return response;        
         }
-
-        // POST: api/Cliente
-        public string Post(Driver obj)
+        [HttpPost]
+        public IHttpActionResult Grabar(Driver obj)
         {
-            var res = "ok";
+            ApiResponse<string> response = new ApiResponse<string>();
+
+            try
+            {
+                string result = _servicioDriver.insertar(obj); // Llama al método insertar
+                response.Success = true;
+                response.Data = result;
+                return Ok(response);
+            }
+            catch (ValidationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (SqlException ex)
+            {
+                // Captura el mensaje de error de SQL Server
+                return InternalServerError(ex);
+            }
+            catch (Exception ex)
+            {
+                // Maneja otras excepciones
+                return InternalServerError(ex);
+            }
+        }
+        public IHttpActionResult Put(Driver obj)
+        {
+            ApiResponse<string> response = new ApiResponse<string>();
+            try
+            {
+                string result = _servicioDriver.Actualizar(obj);
+                response.Success = true;
+                response.Data = result;
+                return Ok(response);
+            }
+            catch (ValidationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (SqlException ex)
+            {
+                return InternalServerError(ex);
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+        public IHttpActionResult Delete(int id)
+        {
+            ApiResponse<string> response = new ApiResponse<string>();
             var srv = new ServicioDriver();
             try
             {
-                res= srv.insertar(obj);
+                srv.eliminar(id);
+                response.Success = true;
+                return Ok(response);
             }
-            catch (Exception ex) {
-                var error = ex.Message;
-                res = error;
 
-            }
-            return res;
-        }
-
-        // PUT: api/Cliente/5
-        public string Put(Driver obj)
-        {
-            var res = "ok";
-            var srv = new ServicioDriver();
-            try
+            catch(SqlException ex)
             {
-                res = srv.Actualizar(obj);
+                return InternalServerError(ex);
             }
-            catch (Exception ex) { res = ex.ToString(); }
-            return res;
-        }
-        public void Delete(int id)
-        {
-            var srv = new ServicioDriver();
-            srv.eliminar(id);
-        }
-
-        // DELETE: api/Cliente/5
-        /*
-        public string Delete(int id)
-        {
-            string res = "ok";
-            var srv = new ServicioCliente();
-           try
+            catch (Exception ex)
             {
-                res = srv.eliminar(id);
+                return InternalServerError(ex);
             }
-            catch (Exception ex) { res = ex.ToString(); }
 
-            return res;
         }
-        */
-
         /*
          public void Post(listarCliente ent)
         {

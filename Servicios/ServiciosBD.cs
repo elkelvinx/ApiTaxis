@@ -45,33 +45,61 @@ namespace Servicios
             }
             return conexion;
         }
-        public static SqlConnection ObtenerConexion2(string usuario, string contraseña)
+        //cosas del profe/////////////////////
+        public static SqlCommand ObtenerComando(SqlConnection conn, string sql)
         {
-            // Asegúrate de validar y sanear las entradas 'usuario' y 'contraseña'
-            // ...
+            return new SqlCommand(sql, conn);
+        }
 
-            SqlConnection conexion = new SqlConnection();
-            // Utiliza parámetros parametrizados para la cadena de conexión
-            string cadena = "server=LAPTOP-2LUPI6JF\\SQLEXPRESS; database=TaxisBdTeo; User Id=@usuario; Password=@contraseña;";
-            conexion.ConnectionString = cadena;
-
-            // Agrega los parámetros al objeto de conexión
-            /*
-                 conexion.Parameters.AddWithValue("@usuario", usuario);
-                conexion.Parameters.AddWithValue("@contraseña", contraseña);
-                conexion.
-             */
+        public bool EjecutarProcedimiento(string pNombre)
+        {
+            SqlConnection conexion = ObtenerConexion();
             try
             {
-                conexion.Open();
+                SqlCommand cmdProc = new SqlCommand(pNombre, conexion);
+                cmdProc.CommandType = CommandType.StoredProcedure;
+                if (conexion.State != ConnectionState.Open)
+                    conexion.Open();
+                cmdProc.ExecuteNonQuery();
+                return true;
             }
-            catch (SqlException ex)
+            catch (Exception ex)
             {
-                // Manejar el error de SQL aquí
-                throw;
+                throw ex;
             }
+            finally
+            {
+                conexion.Close();
+                SqlConnection.ClearPool(conexion);
+            }
+        }
 
-            return conexion;
+        public DateTime ObtenerFechaServidor()
+        {
+            SqlConnection conexion = ServiciosBD.ObtenerConexion();
+            try
+            {
+                StringBuilder sentencia = new StringBuilder("SELECT GETDATE() Fecha");
+                SqlCommand comando = ServiciosBD.ObtenerComando(conexion, sentencia.ToString());
+                object resultado = comando.ExecuteScalar();
+                if (resultado != null && resultado.GetType() != typeof(DBNull))
+                {
+                    return Convert.ToDateTime(resultado);
+                }
+                else
+                {
+                    return DateTime.Today;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            finally
+            {
+                conexion.Close();
+                SqlConnection.ClearPool(conexion);
+            }
         }
 
 

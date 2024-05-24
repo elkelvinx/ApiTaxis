@@ -46,6 +46,7 @@ namespace Servicios
                 obj.settlementS = reader["settlementS"].ToString();
                 
             }
+            con.Close();
             return obj;
         }
         public listAdmin consultarAdmins()
@@ -77,7 +78,6 @@ namespace Servicios
                 obj.registerD = DateTime.Parse(reader["registerD"].ToString());
                 obj.lastModDate = DateTime.Parse(reader["lastModDate"].ToString());
                 obj.mail = reader["mail"].ToString();
-
                 obj.street1 = reader["street1"].ToString();
                 obj.street2 = reader["street2"].ToString();
                 obj.street3 = reader["street3"].ToString();
@@ -85,6 +85,7 @@ namespace Servicios
                 admins.Add(obj);
 
             }
+            con.Close();
             return admins;
         }
         public listAdmin consultarNombre()
@@ -101,6 +102,7 @@ namespace Servicios
                 obj.name = reader["name"].ToString();
                 list.Add(obj);
             }
+            con.Close();
             return list;
         }
         public string insertar(Admin obj)
@@ -124,8 +126,8 @@ namespace Servicios
             cmd.Parameters.AddWithValue("@registerD", DateTime.Now.Date);
             cmd.Parameters.AddWithValue("@lastModDate", DateTime.Now.Date);
             cmd.Parameters.AddWithValue("@mail", obj.mail);
-            try { cmd.ExecuteNonQuery(); }
-            catch (Exception ex) { respuesta = "Error, " + ex.Message.ToString(); }
+            cmd.ExecuteNonQuery();
+            con.Close();
             return respuesta;
         }
     
@@ -155,8 +157,8 @@ namespace Servicios
             cmd.Parameters.AddWithValue("@registerD", obj.registerD);
             cmd.Parameters.AddWithValue("@lastModDate", obj.lastModDate);
             cmd.Parameters.AddWithValue("@mail", obj.mail);
-            try { cmd.ExecuteNonQuery(); }
-            catch (Exception ex) { respuesta = "Error, " + ex.Message.ToString(); }
+            cmd.ExecuteNonQuery();
+            con.Close();
             return respuesta;
         }
         public string eliminar(int id)
@@ -166,14 +168,8 @@ namespace Servicios
             string cadena = "delete from admins where id=@id";
             SqlCommand cmd = new SqlCommand(cadena, con);
             cmd.Parameters.AddWithValue("@id", id);
-            try
-            {
-                cmd.ExecuteNonQuery();
-            }
-            catch (Exception ex)
-            {
-                respuesta = "Error " + ex.Message.ToString();
-            }
+            cmd.ExecuteNonQuery();
+            con.Close();
             return respuesta;
         }
     }

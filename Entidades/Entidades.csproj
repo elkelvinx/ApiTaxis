@@ -56,6 +56,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Admin.cs" />
+    <Compile Include="Arrays\ApiResponse.cs" />
     <Compile Include="Extra\ApplicationDbContext.cs" />
     <Compile Include="Extra\ApplicationUser.cs" />
     <Compile Include="Arrays\Arrays.cs" />

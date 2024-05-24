@@ -16,10 +16,7 @@ namespace Entidades
         public int id { get; set; }
         [DataMember]
         public string name { get; set; }
-        [DataMember]
-        public int settlement { get; set; }
-        [DataMember]
-        public string settlementS { get; set;}
+
     }
     public class listStreet: List<Street> { }
 }

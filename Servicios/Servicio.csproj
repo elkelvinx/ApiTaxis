@@ -42,6 +42,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ServicioUser.cs" />
     <Compile Include="Monolitico\ServicioArrayUD.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Monolitico\ServicioRelation.cs" />

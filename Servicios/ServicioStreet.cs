@@ -12,10 +12,7 @@ namespace Servicios
     {
         public listStreet consultarCalles()
         {
-            string consulta = "select st.*, c.name as colonia" +
-                " from streets as st INNER JOIN" +
-                " settlements as c ON st.settlement=c.id" +
-                " order by st.name ASC";
+            string consulta = "select * from streets order by name ASC";
             SqlConnection con = ServiciosBD.ObtenerConexion();
             SqlCommand command = new SqlCommand(consulta, con);
             SqlDataReader reader = command.ExecuteReader();
@@ -25,8 +22,6 @@ namespace Servicios
                 Street obj = new Street();
                 obj.id = Int16.Parse(reader["id"].ToString());
                 obj.name = reader["name"].ToString();
-                obj.settlement= Int16.Parse(reader["settlement"].ToString());
-                obj.settlementS = reader["colonia"].ToString();
                 list.Add(obj);
             }
             return list;
@@ -50,12 +45,11 @@ namespace Servicios
         public string insertar(Street obj)
         {
             string respuesta = "ok";
-            string cadena = "insert into streets (name,settlement)" +
-                " Values (@name,@settlement)";
+            string cadena = "insert into streets (name)" +
+                " Values (@name)";
             SqlConnection con = ServiciosBD.ObtenerConexion();
             SqlCommand cmd = new SqlCommand(cadena, con);
             cmd.Parameters.AddWithValue("@name", obj.name);
-            cmd.Parameters.AddWithValue("@settlement", obj.settlement);
             try { cmd.ExecuteNonQuery(); }
             catch (Exception ex) { respuesta = "Error, " + ex.Message.ToString(); }
             return respuesta;
@@ -64,10 +58,9 @@ namespace Servicios
         {
             string respuesta = "ok";
             SqlConnection con = ServiciosBD.ObtenerConexion();
-            SqlCommand cmd = new SqlCommand("update streets set name=@name, settlement=@settlement where id=@id", con);
+            SqlCommand cmd = new SqlCommand("update streets set name=@name where id=@id", con);
             cmd.Parameters.AddWithValue("@id", obj.id);
             cmd.Parameters.AddWithValue("@name", obj.name);
-            cmd.Parameters.AddWithValue("@settlement", obj.settlement);
             try { cmd.ExecuteNonQuery(); }
             catch (Exception ex) { respuesta = "Error, " + ex.Message.ToString(); }
             return respuesta;

@@ -2,6 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.IO;
+using System.IO.Ports;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -56,7 +58,8 @@ namespace Servicios
                 obj.statusS = reader["statusS"].ToString();
                 list.Add(obj);
              }
-
+             con.Close();
+            
              return list;
          }
         
@@ -130,6 +133,7 @@ namespace Servicios
             command.Parameters.AddWithValue("@id", id);
             SqlDataReader reader = command.ExecuteReader();
             Driver obj = new Driver();
+
             if (reader.Read())
             {
                 obj.id = Int16.Parse(reader["id"].ToString());
@@ -150,7 +154,8 @@ namespace Servicios
                 obj.licenseEx = DateTime.Parse(reader["licenseEx"].ToString());
                 obj.ingressPay = Int16.Parse(reader["ingressPay"].ToString());
                 obj.status = Int16.Parse(reader["status"].ToString());
-                obj.contactDrivers = Int16.Parse(reader["contactDrivers"].ToString());
+                    try{obj.contactDrivers = Int16.Parse(reader["contactDrivers"].ToString());}
+                    catch {obj.contactDrivers= 0;}
                 //Direction
                 obj.street1 = reader["street1"].ToString();
                 obj.street2 = reader["street2"].ToString();
@@ -159,9 +164,10 @@ namespace Servicios
                 obj.adminName = reader["adminName"].ToString();
                 obj.statusS = reader["statusS"].ToString();
             }
+            con.Close();
             return obj;
         }
-     
+
         public string insertar(Driver obj)
         {
             string respuesta = "ok";
@@ -188,9 +194,12 @@ namespace Servicios
             cmd.Parameters.AddWithValue("@licenseEx", obj.licenseEx);
             cmd.Parameters.AddWithValue("@ingressPay", obj.ingressPay);
             cmd.Parameters.AddWithValue("@status", obj.status);
+            cmd.ExecuteNonQuery();
+            /*
+               try { cmd.ExecuteNonQuery(); }
+            catch (Exception ex) { respuesta = "Error, " + ex.Message.ToString(); }*/
+                con.Close();
 
-            try { cmd.ExecuteNonQuery(); }
-            catch (Exception ex) { respuesta = "Error, " + ex.Message.ToString(); }
             return respuesta;
         }
         ///FALLAA CHECA ACTUALIZAR
@@ -223,9 +232,8 @@ namespace Servicios
             cmd.Parameters.AddWithValue("@licenseEx", obj.licenseEx);
             cmd.Parameters.AddWithValue("@ingressPay", obj.ingressPay);
             cmd.Parameters.AddWithValue("@status", obj.status);
-
-            try { cmd.ExecuteNonQuery(); }
-            catch (Exception ex) { respuesta = "Error, " + ex.Message.ToString(); }
+            cmd.ExecuteNonQuery();
+            con.Close();
             return respuesta;
         }
         public string eliminar(int id)
@@ -235,14 +243,8 @@ namespace Servicios
             string cadena = "delete from drivers where id=@id";
             SqlCommand cmd = new SqlCommand(cadena, con);
             cmd.Parameters.AddWithValue("@id", id);
-            try
-            {
-                cmd.ExecuteNonQuery();
-            }
-            catch (Exception ex)
-            {
-                respuesta = "Error " + ex.Message.ToString();
-            }
+                cmd.ExecuteNonQuery();            
+            con.Close();
             return respuesta;
         }
     }

@@ -1,7 +1,10 @@
 ﻿using Entidades;
+using Entidades.Arrays;
 using Servicios;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -11,7 +14,10 @@ namespace TaxistTeodoro.Areas.api
 {
     public class AdminController : ApiController
     {
-        // GET: api/Admin
+        private readonly ServicioAdmin _servicioAdmin;
+        public AdminController() { 
+        _servicioAdmin = new ServicioAdmin();
+        }
         
         public HttpResponseMessage Get()    
         {
@@ -47,45 +53,78 @@ namespace TaxistTeodoro.Areas.api
         // POST: api/Admin
 
      
-        public string Post(Admin ent)
+        public IHttpActionResult Post(Admin obj)
         {
-            var srv = new ServicioAdmin();
-            string respuesta = "ok";
+            ApiResponse<string> response = new ApiResponse<string>();
             try
             {
-                respuesta = srv.insertar(ent);
+                string result = _servicioAdmin.insertar(obj);
+                response.Success = true;
+                response.Data = result;
+                return Ok(response);
             }
-            catch(Exception ex) { respuesta = ex.ToString(); }
-           
-            
-            return respuesta;
+            catch (ValidationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (SqlException ex)
+            {
+                return InternalServerError(ex);
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
         }
 
 
         // PUT: api/Admin/5
-        public string Put(Admin Admin)
+        public IHttpActionResult Put(Admin Admin)
         {
-            var srv = new ServicioAdmin();
-            string res = "ok";
-            try 
+            ApiResponse<string> response = new ApiResponse<string>();
+            try
             {
-                res = srv.Actualizar(Admin);
+                string result = _servicioAdmin.Actualizar(Admin);
+                response.Success = true;
+                response.Data = result;
+                return Ok(response);
             }
-            catch (Exception ex) { res = ex.ToString(); }
-            return res;
+            catch (ValidationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (SqlException ex)
+            {
+                return InternalServerError(ex);
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
         }
 
         // DELETE: api/Admin/5
-        public string Delete(int id)
+        public IHttpActionResult Delete(int id)
         {
-            var res = "ok";
-            var srv = new ServicioAdmin();
+            ApiResponse<string> response = new ApiResponse<string>();
             try
             {
-                srv.eliminar(id);
+                string result = _servicioAdmin.eliminar(id);
+                response.Success = true;
+                return Ok(response);
             }
-            catch(Exception ex) { res = ex.ToString(); }
-            return res;
+            catch (ValidationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (SqlException ex)
+            {
+                return InternalServerError(ex);
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
         }
 
         /*
