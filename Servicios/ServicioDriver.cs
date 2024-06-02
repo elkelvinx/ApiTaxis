@@ -57,7 +57,8 @@ namespace Servicios
                  obj.adminName = reader["adminName"].ToString();
                 obj.statusS = reader["statusS"].ToString();
                 list.Add(obj);
-             }
+                SqlConnection.ClearPool(con);
+            }
              con.Close();
             
              return list;
@@ -234,6 +235,7 @@ namespace Servicios
             cmd.Parameters.AddWithValue("@status", obj.status);
             cmd.ExecuteNonQuery();
             con.Close();
+            SqlConnection.ClearPool(con);
             return respuesta;
         }
         public string eliminar(int id)

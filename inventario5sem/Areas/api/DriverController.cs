@@ -1,5 +1,6 @@
 ﻿using Entidades;
 using Entidades.Arrays;
+using Entidades.Response;
 using Servicios;
 using System;
 using System.Collections.Generic;
@@ -22,8 +23,7 @@ namespace TaxistTeodoro.Areas.api
         public HttpResponseMessage Get()
         {
             var entidad = new listDrivers();
-            ServicioDriver srv = new ServicioDriver();
-            entidad = srv.consultarDrivers();
+            entidad = _servicioDriver.consultarDrivers();
             var response = Request.CreateResponse<IEnumerable<Driver>>(System.Net.HttpStatusCode.Created, entidad);
             return response;
         }
@@ -32,19 +32,17 @@ namespace TaxistTeodoro.Areas.api
         public HttpResponseMessage Get(int id)
         {
             var entidad = new Driver();
-            ServicioDriver srv = new ServicioDriver();
-                entidad = srv.consultarDriver(id);
-                var response = Request.CreateResponse<Driver>(System.Net.HttpStatusCode.Created, entidad);
+            entidad = _servicioDriver.consultarDriver(id);
+            var response = Request.CreateResponse<Driver>(System.Net.HttpStatusCode.Created, entidad);
                 return response;        
         }
         [HttpPost]
         public IHttpActionResult Grabar(Driver obj)
         {
-            ApiResponse<string> response = new ApiResponse<string>();
-
+            var response = new ApiResponse<string>();
             try
             {
-                string result = _servicioDriver.insertar(obj); // Llama al método insertar
+                string result = _servicioDriver.insertar(obj);
                 response.Success = true;
                 response.Data = result;
                 return Ok(response);

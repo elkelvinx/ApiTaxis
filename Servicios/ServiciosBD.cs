@@ -27,24 +27,6 @@ namespace Servicios
             return conexion;
 
         }
-        public static SqlConnection ObtenerConexion(string usuario, string contraseña)
-        {
-            usuario = "siniestros";
-            contraseña = "123";
-            SqlConnection conexion = new SqlConnection();
-            string cadena = $"server=LAPTOP-2LUPI6JF\\SQLEXPRESS; database=TaxisBdTeo; User Id={usuario}; Password={contraseña};";
-            conexion.ConnectionString = cadena;
-            try
-            {
-                conexion.Open();
-            }
-            catch (SqlException ex)
-            {
-                // Manejar el error de SQL aquí
-                throw;
-            }
-            return conexion;
-        }
         //cosas del profe/////////////////////
         public static SqlCommand ObtenerComando(SqlConnection conn, string sql)
         {
