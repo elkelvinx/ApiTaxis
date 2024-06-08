@@ -13,24 +13,24 @@ namespace Entidades.LogIn
     public class UserPermissions
     {
         [DataMember]
-        public int id { get; set; }
+        public int Id { get; set; }
         [DataMember]
-        public int idUser { get; set; }
+        public int IdUser { get; set; }
         [DataMember]
-        public int idRole { get; set; }
+        public int IdRole { get; set; }
         [DataMember]
-        public bool driver {  get; set; }
+        public bool Driver { get; set; }
         [DataMember]
-        public bool admin { get; set; }
+        public bool Admin { get; set; }
         [DataMember]
-        public bool permissionaire { get; set; }
+        public bool Permissionaire { get; set; }
         [DataMember]
-        public bool unit { get; set; }
+        public bool Unit { get; set; }
         [DataMember]
-        public bool sinister { get; set; }
+        public bool Sinister { get; set; }
         [DataMember]
-        public bool extraData { get; set; }
+        public bool ExtraData { get; set; }
         [DataMember]
-        public bool pdf { get; set; }
+        public bool Pdf { get; set; }
     }
 }

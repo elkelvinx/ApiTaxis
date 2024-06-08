@@ -24,4 +24,9 @@ namespace Entidades.LogIn
         public DateTime dateCreated { get; set; }
 
     }
+    public class UserData
+    {
+        public User User { get; set; }
+        public UserPermissions Permissions { get; set; }
+    }
 }

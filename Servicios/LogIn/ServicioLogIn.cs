@@ -1,151 +1,126 @@
-﻿using Entidades;
-using Entidades.LogIn;
-using ServicioEncriptacion;
-using EO.WebBrowser.DOM;
-using Servicios.LogIn;
-using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
-using System.IO;
-using System.IO.Ports;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Security.Policy;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using Entidades.LogIn;
 using Entidades.Response;
+using Microsoft.IdentityModel.Tokens;
+using ServicioEncriptacion;
+using System;
+using System.Configuration;
+using System.Data.SqlClient;
+//using System.IdentityModel.Tokens.Jwt;
+using Microsoft.IdentityModel.Tokens.Configuration;
+using System.Net;
+using System.Net.Http;
+using System.Security.Claims;
+using System.Text;
 
 namespace Servicios
 {
-    public class ServicioLogIn : IUserService
+
+    public class ServicioLogIn
     {
         public AppDomainInitializer AppDomainInitializer { get; set; }
-        public ServicioLogIn() { }
-        
-        public void LogIn(Hash codigo)
-        {
-        
-        }
+        private readonly Encriptacion _encriptacion;
+        private UserData _userData;
 
-        public static string ConvertirSha256(string texto) {
-            //using System. Text
-            //USAR LA REFERENCIA DE "Systen. Security Cryptography"
-            StringBuilder Sb = new StringBuilder();
-            using (SHA256 hash = SHA256Managed.Create())
+        public ServicioLogIn()
+        {
+            _encriptacion = new Encriptacion();
+            _userData = new UserData();
+        }
+        public RespuestaJWT LogIn(AuthRequest Model)
+        {
+            Model = EncriptData(Model);
+            var Response = ValidationUser(Model);
+            if (Response.IsSuccess == true)
             {
-                Encoding enc = Encoding.UTF8;
-                byte[] result = hash.ComputeHash(enc.GetBytes(texto));
-                foreach (byte b in result)
-                    Sb.Append(b.ToString("x2")); 
+                _userData = (UserData)Response.Data;
+                var JWT = GetJWT(_userData.User, _userData.Permissions);
+                return new RespuestaJWT { Token = JWT };
             }
-            return Sb.ToString();
+            else
+                //return new RespuestaJWT { ErrorMessage = "Nombre de usuario Invalido" };
+                return null;
         }
-
-          public listDrivers consultarUsers()
-         {
-             string cadena = "select a.*," +
-                 "(select s.name from streets as s where s.id = a.st1) as street1," +
-                 "(select s.name from streets as s where s.id = a.st2) as street2," +
-                 "(select s.name from streets as s where s.id = a.st3) as street3," +
-                 "(select s.name from settlements as s where s.id = a.settlement) as settlementS," +
-                 "(select s.name from admins as s where s.id = a.admin) as adminName, " +
-                 "(select s.name from status as s where s.id = a.status)as statusS " +
-                 "from drivers as a;";
-            /*SqlConnection con = ServiciosBD.ObtenerConexion("hola","hola");*/
-            SqlConnection con = ServiciosBD.ObtenerConexion();
-            SqlCommand command = new SqlCommand(cadena, con);
-             SqlDataReader reader = command.ExecuteReader();
-             listDrivers list = new listDrivers();
-             while (reader.Read())
-             {
-                 Driver obj = new Driver();
-                 obj.id = Int16.Parse(reader["id"].ToString());
-                 obj.name = reader["name"].ToString();
-                 obj.lm1 = reader["lm1"].ToString();
-                 obj.lm2 = reader["lm2"].ToString();
-                 obj.birth = DateTime.Parse(reader["birth"].ToString());
-                 obj.hireDate = DateTime.Parse(reader["hireDate"].ToString());
-                 obj.lastModD = DateTime.Parse(reader["lastModD"].ToString());
-                 obj.password = reader["password"].ToString();
-                 obj.phone = reader["phone"].ToString();
-                 obj.settlement = Int16.Parse(reader["settlement"].ToString());
-                 obj.st1 = Int16.Parse(reader["st1"].ToString());
-                 obj.st2 = Int16.Parse(reader["st2"].ToString());
-                 obj.st3 = Int16.Parse(reader["st3"].ToString());
-                 obj.extNumber = Int16.Parse(reader["extNumber"].ToString());
-                 obj.admin = Int16.Parse(reader["admin"].ToString());
-                 obj.licenseEx = DateTime.Parse(reader["licenseEx"].ToString());
-                 obj.ingressPay = Int16.Parse(reader["ingressPay"].ToString());
-                 obj.status = Int16.Parse(reader["status"].ToString());
-                 //Direction
-                 obj.street1 = reader["street1"].ToString();
-                 obj.street2 = reader["street2"].ToString();
-                 obj.street3 = reader["street3"].ToString();
-                 obj.settlementS = reader["settlementS"].ToString();
-                 obj.adminName = reader["adminName"].ToString();
-                obj.statusS = reader["statusS"].ToString();
-                list.Add(obj);
-             }
-             con.Close();
-            
-             return list;
-         }
-        public string Actualizar(Driver obj)
+        private RespuestaObj ValidationUser(AuthRequest Model)
         {
+            var query = "SELECT d.*, p.* FROM usersData AS d " +
+                        "INNER JOIN userPermissions AS p ON d.id = p.idUser " +
+                        "WHERE d.name = @name AND d.password = @password";
 
-            string respuesta = "ok";
-
-            SqlConnection con = ServiciosBD.ObtenerConexion();
-            SqlCommand cmd = new SqlCommand("update drivers set name=@name,lm1=@lm1,lm2=@lm2," +
-                "phone=@phone,st1=@st1,st2=@st2,st3=@st3,settlement=@settlement,extNumber=@extNumber,birth=@birth,hireDate=@hireDate," +
-                "lastModD=@lastModD,password=@password,admin=@admin,licenseEx=@licenseEx,ingressPay=@ingressPay,status=@status where id=@id", con);
-            cmd.Parameters.AddWithValue("@id", obj.id);
-            cmd.Parameters.AddWithValue("@name", obj.name);
-            cmd.Parameters.AddWithValue("@lm1", obj.lm1);
-            cmd.Parameters.AddWithValue("@lm2", obj.lm2);
-            cmd.Parameters.AddWithValue("@phone", obj.phone);
-            cmd.Parameters.AddWithValue("@st1", obj.st1);
-            cmd.Parameters.AddWithValue("@st2", obj.st2);
-            cmd.Parameters.AddWithValue("@st3", obj.st3);
-            cmd.Parameters.AddWithValue("@settlement", obj.settlement);
-            cmd.Parameters.AddWithValue("@extNumber", obj.extNumber);
-            cmd.Parameters.AddWithValue("@birth", obj.birth);
-            //dudo de registerD
-            cmd.Parameters.AddWithValue("@hireDate", obj.hireDate);
-            cmd.Parameters.AddWithValue("@lastModD", obj.lastModD);
-            cmd.Parameters.AddWithValue("@password", obj.password);
-            cmd.Parameters.AddWithValue("@admin", obj.admin);
-            cmd.Parameters.AddWithValue("@licenseEx", obj.licenseEx);
-            cmd.Parameters.AddWithValue("@ingressPay", obj.ingressPay);
-            cmd.Parameters.AddWithValue("@status", obj.status);
-            cmd.ExecuteNonQuery();
-            con.Close();
-            return respuesta;
+            using (SqlConnection con = ServiciosBD.ObtenerConexion())
+            {
+                using (SqlCommand cmd = new SqlCommand(query, con))
+                {
+                    cmd.Parameters.AddWithValue("@name", Model.name);
+                    cmd.Parameters.AddWithValue("@password", Model.password);
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            User user = new User
+                            {
+                                name = reader["name"].ToString(),
+                                email = reader["email"].ToString(),
+                                dateCreated = DateTime.Parse(reader["dateCreated"].ToString()),
+                            };
+                            UserPermissions permissions = new UserPermissions
+                            {
+                                IdRole = Int16.Parse(reader["idRole"].ToString()),
+                                Admin = Convert.ToBoolean(reader["admin"]),
+                                Permissionaire = Convert.ToBoolean(reader["permissionair"]),
+                                Unit = Convert.ToBoolean(reader["unit"]),
+                                Sinister = Convert.ToBoolean(reader["sinister"]),
+                                ExtraData = Convert.ToBoolean(reader["extraData"]),
+                                Pdf = Convert.ToBoolean(reader["pdf"])
+                            };
+                            reader.Close();
+                            return new RespuestaObj
+                            {
+                                Data = new UserData { User = user, Permissions = permissions }
+                            };
+                        }
+                    }
+                }
+            }
+            return new RespuestaObj { ErrorMessage = "Fallo en el proceso" };
         }
-        public string eliminar(int id)
+        private AuthRequest EncriptData(AuthRequest Model)
         {
-            string respuesta = "ok";
-            SqlConnection con = ServiciosBD.ObtenerConexion();
-            string cadena = "delete from drivers where id=@id";
-            SqlCommand cmd = new SqlCommand(cadena, con);
-            cmd.Parameters.AddWithValue("@id", id);
-                cmd.ExecuteNonQuery();            
-            con.Close();
-            return respuesta;
+            Model.name = _encriptacion.SanitizeUserName(Model.name);
+            Model.password = _encriptacion.GetSHA256(Model.password);
+            return Model;
         }
-        //corrige esto
-        public User Auth(Encriptacion encriptacion)
+        public string GetJWT(User user, UserPermissions perm)
         {
-            string password = encriptacion.GetSHA256("d");
-            throw new NotImplementedException();
-        }
+            //string jwt = "PPPP";
+            var key = ConfigurationManager.AppSettings["Jwt:Key"];
+            var issuer = ConfigurationManager.AppSettings["Jwt:Issuer"];
+            var audience = ConfigurationManager.AppSettings["Jwt:Audience"];
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
+            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+            var claims = new[]
+           {
+                new Claim(ClaimTypes.NameIdentifier, user.name),
+                new Claim(ClaimTypes.Email, user.email),
+                // new Claim(ClaimTypes.GivenName, user.FirstName),
+                //new Claim(ClaimTypes.Surname, user.LastName),
+                new Claim(ClaimTypes.Role, user.email),
+                new Claim("roles","admin")
+            };
+      
 
-        public Respuesta Auth(AuthRequest model)
-        {
-            throw new NotImplementedException();
+            // Crear el token
+            /*
+              var token = new JwtSecurityToken(
+                 issuer,
+                 audience,
+                 claims,
+                 expires: DateTime.Now.AddMinutes(60),
+                 signingCredentials: credentials);
+
+             return new JwtSecurityTokenHandler().WriteToken(token);
+             */
+            return "Si entro al metodo";
         }
     }
-
 }
 
