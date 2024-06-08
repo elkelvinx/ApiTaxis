@@ -12,58 +12,58 @@ namespace Servicios
 {
     public class ServicioDriver
     {
-        
-          public listDrivers consultarDrivers()
-         {
-             string cadena = "select a.*," +
-                 "(select s.name from streets as s where s.id = a.st1) as street1," +
-                 "(select s.name from streets as s where s.id = a.st2) as street2," +
-                 "(select s.name from streets as s where s.id = a.st3) as street3," +
-                 "(select s.name from settlements as s where s.id = a.settlement) as settlementS," +
-                 "(select s.name from admins as s where s.id = a.admin) as adminName, " +
-                 "(select s.name from status as s where s.id = a.status)as statusS " +
-                 "from drivers as a;";
+
+        public listDrivers ConsultarDrivers()
+        {
+            string cadena = "select a.*," +
+                "(select s.name from streets as s where s.id = a.st1) as street1," +
+                "(select s.name from streets as s where s.id = a.st2) as street2," +
+                "(select s.name from streets as s where s.id = a.st3) as street3," +
+                "(select s.name from settlements as s where s.id = a.settlement) as settlementS," +
+                "(select s.name from admins as s where s.id = a.admin) as adminName, " +
+                "(select s.name from status as s where s.id = a.status)as statusS " +
+                "from drivers as a;";
             /*SqlConnection con = ServiciosBD.ObtenerConexion("hola","hola");*/
             SqlConnection con = ServiciosBD.ObtenerConexion();
             SqlCommand command = new SqlCommand(cadena, con);
-             SqlDataReader reader = command.ExecuteReader();
-             listDrivers list = new listDrivers();
-             while (reader.Read())
-             {
-                 Driver obj = new Driver();
-                 obj.id = Int16.Parse(reader["id"].ToString());
-                 obj.name = reader["name"].ToString();
-                 obj.lm1 = reader["lm1"].ToString();
-                 obj.lm2 = reader["lm2"].ToString();
-                 obj.birth = DateTime.Parse(reader["birth"].ToString());
-                 obj.hireDate = DateTime.Parse(reader["hireDate"].ToString());
-                 obj.lastModD = DateTime.Parse(reader["lastModD"].ToString());
-                 obj.password = reader["password"].ToString();
-                 obj.phone = reader["phone"].ToString();
-                 obj.settlement = Int16.Parse(reader["settlement"].ToString());
-                 obj.st1 = Int16.Parse(reader["st1"].ToString());
-                 obj.st2 = Int16.Parse(reader["st2"].ToString());
-                 obj.st3 = Int16.Parse(reader["st3"].ToString());
-                 obj.extNumber = Int16.Parse(reader["extNumber"].ToString());
-                 obj.admin = Int16.Parse(reader["admin"].ToString());
-                 obj.licenseEx = DateTime.Parse(reader["licenseEx"].ToString());
-                 obj.ingressPay = Int16.Parse(reader["ingressPay"].ToString());
-                 obj.status = Int16.Parse(reader["status"].ToString());
-                 //Direction
-                 obj.street1 = reader["street1"].ToString();
-                 obj.street2 = reader["street2"].ToString();
-                 obj.street3 = reader["street3"].ToString();
-                 obj.settlementS = reader["settlementS"].ToString();
-                 obj.adminName = reader["adminName"].ToString();
+            SqlDataReader reader = command.ExecuteReader();
+            listDrivers list = new listDrivers();
+            while (reader.Read())
+            {
+                Driver obj = new Driver();
+                obj.id = Int16.Parse(reader["id"].ToString());
+                obj.name = reader["name"].ToString();
+                obj.lm1 = reader["lm1"].ToString();
+                obj.lm2 = reader["lm2"].ToString();
+                obj.birth = DateTime.Parse(reader["birth"].ToString());
+                obj.hireDate = DateTime.Parse(reader["hireDate"].ToString());
+                obj.lastModD = DateTime.Parse(reader["lastModD"].ToString());
+                obj.password = reader["password"].ToString();
+                obj.phone = reader["phone"].ToString();
+                obj.settlement = Int16.Parse(reader["settlement"].ToString());
+                obj.st1 = Int16.Parse(reader["st1"].ToString());
+                obj.st2 = Int16.Parse(reader["st2"].ToString());
+                obj.st3 = Int16.Parse(reader["st3"].ToString());
+                obj.extNumber = Int16.Parse(reader["extNumber"].ToString());
+                obj.admin = Int16.Parse(reader["admin"].ToString());
+                obj.licenseEx = DateTime.Parse(reader["licenseEx"].ToString());
+                obj.ingressPay = Int16.Parse(reader["ingressPay"].ToString());
+                obj.status = Int16.Parse(reader["status"].ToString());
+                //Direction
+                obj.street1 = reader["street1"].ToString();
+                obj.street2 = reader["street2"].ToString();
+                obj.street3 = reader["street3"].ToString();
+                obj.settlementS = reader["settlementS"].ToString();
+                obj.adminName = reader["adminName"].ToString();
                 obj.statusS = reader["statusS"].ToString();
                 list.Add(obj);
                 SqlConnection.ClearPool(con);
             }
-             con.Close();
-            
-             return list;
-         }
-        
+            con.Close();
+
+            return list;
+        }
+
         /*   public listDrivers ConsultarDrivers()
            {
                string cadena = "SELECT a.*," +
@@ -119,7 +119,7 @@ namespace Servicios
                }
            }*/
 
-        public Driver consultarDriver(int id)
+        public Driver ConsultarDriver(int id)
         {
             string cadena = "select a.*," +
                 "(select s.name from streets as s where s.id = a.st1) as street1," +
@@ -128,7 +128,7 @@ namespace Servicios
                 "(select s.name from settlements as s where s.id = a.settlement) as settlementS," +
                 "(select s.name+' '+s.lm1+' '+s.lm2 from admins as s where s.id = a.admin) as adminName, " +
                 "(select s.name from status as s where s.id = a.status) as statusS " +
-                "from drivers as a where a.id = @id;";           
+                "from drivers as a where a.id = @id;";
             SqlConnection con = ServiciosBD.ObtenerConexion();
             SqlCommand command = new SqlCommand(cadena, con);
             command.Parameters.AddWithValue("@id", id);
@@ -149,14 +149,14 @@ namespace Servicios
                 obj.settlement = Int16.Parse(reader["settlement"].ToString());
                 obj.st1 = Int16.Parse(reader["st1"].ToString());
                 obj.st2 = Int16.Parse(reader["st2"].ToString());
-                obj.st3 = Int16.Parse(reader["st3"].ToString());              
+                obj.st3 = Int16.Parse(reader["st3"].ToString());
                 obj.extNumber = Int16.Parse(reader["extNumber"].ToString());
                 obj.admin = Int16.Parse(reader["admin"].ToString());
                 obj.licenseEx = DateTime.Parse(reader["licenseEx"].ToString());
                 obj.ingressPay = Int16.Parse(reader["ingressPay"].ToString());
                 obj.status = Int16.Parse(reader["status"].ToString());
-                    try{obj.contactDrivers = Int16.Parse(reader["contactDrivers"].ToString());}
-                    catch {obj.contactDrivers= 0;}
+                try { obj.contactDrivers = Int16.Parse(reader["contactDrivers"].ToString()); }
+                catch { obj.contactDrivers = 0; }
                 //Direction
                 obj.street1 = reader["street1"].ToString();
                 obj.street2 = reader["street2"].ToString();
@@ -169,9 +169,8 @@ namespace Servicios
             return obj;
         }
 
-        public string insertar(Driver obj)
+        public string Insertar(Driver obj)
         {
-            string respuesta = "ok";
             string cadena = "insert into drivers " +
                 "(name,lm1,lm2,phone,st1,st2,st3,settlement,extNumber,birth,hireDate,lastModD,Password,admin,licenseEx,ingressPay,status)" +
                 "Values(@name,@lm1,@lm2,@phone,@st1,@st2,@st3,@settlement,@extNumber,@birth,@hireDate,@lastModD,@password,@admin,@licenseEx,@ingressPay,@status) ";
@@ -199,9 +198,23 @@ namespace Servicios
             /*
                try { cmd.ExecuteNonQuery(); }
             catch (Exception ex) { respuesta = "Error, " + ex.Message.ToString(); }*/
+            con.Close();
+            try
+            {
+                cmd.ExecuteNonQuery();
                 con.Close();
-
-            return respuesta;
+                return "ok";
+            }
+            catch (SqlException ex)
+            {
+                con.Close();
+                throw new Exception("Error SQL: " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                con.Close();
+                throw new Exception("Error: " + ex.Message);
+            }
         }
         ///FALLAA CHECA ACTUALIZAR
         public string Actualizar(Driver obj)
@@ -238,18 +251,17 @@ namespace Servicios
             SqlConnection.ClearPool(con);
             return respuesta;
         }
-        public string eliminar(int id)
+        public string Eliminar(int id)
         {
             string respuesta = "ok";
             SqlConnection con = ServiciosBD.ObtenerConexion();
             string cadena = "delete from drivers where id=@id";
             SqlCommand cmd = new SqlCommand(cadena, con);
             cmd.Parameters.AddWithValue("@id", id);
-                cmd.ExecuteNonQuery();            
+            cmd.ExecuteNonQuery();
             con.Close();
             return respuesta;
         }
     }
 
 }
-

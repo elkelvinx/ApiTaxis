@@ -1,5 +1,7 @@
+//using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Web;
 using System.Web.Http;
@@ -19,6 +21,27 @@ namespace inventario5sem
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
         }
+        /*
+          private void ConfigureAuth()
+         {
+             var issuer = ConfigurationManager.AppSettings["Jwt:Issuer"];
+             var audience = ConfigurationManager.AppSettings["Jwt:Audience"];
+             var secret = ConfigurationManager.AppSettings["Jwt:Key"];
+
+             var symmetricKey = Convert.FromBase64String(secret);
+             var validationParameters = new TokenValidationParameters
+             {
+                 ValidateIssuer = true,
+                 ValidateAudience = true,
+                 ValidateIssuerSigningKey = true,
+                 ValidIssuer = issuer,
+                 ValidAudience = audience,
+                 IssuerSigningKey = new SymmetricSecurityKey(symmetricKey)
+             };
+
+             // Configura la autenticación JWT aquí...
+         }
+         */
         private void EnableCrossDmainAjaxCall()
         {
             //HttpContext.Current.Response.AddHeader("Access-Control-Allow-Origin",

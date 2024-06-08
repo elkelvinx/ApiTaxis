@@ -115,8 +115,6 @@ namespace Servicios
         }
         public string Actualizar(Unit obj)
         {
-            DateTime expInsuranceDate;
-
             string respuesta = "ok";
 
             SqlConnection con = ServiciosBD.ObtenerConexion();

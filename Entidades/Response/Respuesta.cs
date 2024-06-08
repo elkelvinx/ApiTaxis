@@ -7,14 +7,17 @@ using System.Threading.Tasks;
 
 namespace Entidades.Response
 {
-   
-    public class Respuesta
+    public class RespuestaObj
     {
-        public int Exito {  get; set; }
-        public string Mensaje { get; set; }
+        public bool IsSuccess => Data != null && string.IsNullOrEmpty(ErrorMessage);
+        public string ErrorMessage { get; set; }
         public object Data { get; set; }
-        public Respuesta() {
-        this.Exito = 0;
-        }
+
+    }
+    public class RespuestaJWT
+    {
+        public bool IsSuccess => Token != null && string.IsNullOrEmpty(ErrorMessage);
+        public string ErrorMessage { get; set; }
+        public string Token { get; set; }
     }
 }

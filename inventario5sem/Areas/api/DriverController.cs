@@ -6,8 +6,10 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.SqlClient;
+using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+
 
 namespace TaxistTeodoro.Areas.api
 {
@@ -22,30 +24,31 @@ namespace TaxistTeodoro.Areas.api
 
         public HttpResponseMessage Get()
         {
-            var entidad = new listDrivers();
-            entidad = _servicioDriver.consultarDrivers();
-            var response = Request.CreateResponse<IEnumerable<Driver>>(System.Net.HttpStatusCode.Created, entidad);
+            _ = new listDrivers();
+            listDrivers entidad = _servicioDriver.ConsultarDrivers();
+            var response = Request.CreateResponse<IEnumerable<Driver>>(System.Net.HttpStatusCode.OK, entidad);
             return response;
         }
-      
-        // GET: api/Cliente/5
+
+        [System.Web.Http.HttpGet]
         public HttpResponseMessage Get(int id)
         {
             var entidad = new Driver();
-            entidad = _servicioDriver.consultarDriver(id);
+            entidad = _servicioDriver.ConsultarDriver(id);
             var response = Request.CreateResponse<Driver>(System.Net.HttpStatusCode.Created, entidad);
-                return response;        
+            return response;
         }
-        [HttpPost]
+        //[HttpPost]
         public IHttpActionResult Grabar(Driver obj)
         {
             var response = new ApiResponse<string>();
             try
             {
-                string result = _servicioDriver.insertar(obj);
+                string result = _servicioDriver.Insertar(obj);
                 response.Success = true;
                 response.Data = result;
-                return Ok(response);
+                return Content(HttpStatusCode.Created, obj);
+
             }
             catch (ValidationException ex)
             {
@@ -54,12 +57,12 @@ namespace TaxistTeodoro.Areas.api
             catch (SqlException ex)
             {
                 // Captura el mensaje de error de SQL Server
-                return InternalServerError(ex);
+                return Content(HttpStatusCode.InternalServerError, ex.Message);
             }
             catch (Exception ex)
             {
                 // Maneja otras excepciones
-                return InternalServerError(ex);
+                return Content(HttpStatusCode.InternalServerError, ex.Message);
             }
         }
         public IHttpActionResult Put(Driver obj)
@@ -91,12 +94,12 @@ namespace TaxistTeodoro.Areas.api
             var srv = new ServicioDriver();
             try
             {
-                srv.eliminar(id);
+                srv.Eliminar(id);
                 response.Success = true;
                 return Ok(response);
             }
 
-            catch(SqlException ex)
+            catch (SqlException ex)
             {
                 return InternalServerError(ex);
             }
@@ -118,3 +121,4 @@ namespace TaxistTeodoro.Areas.api
          */
     }
 }
+
