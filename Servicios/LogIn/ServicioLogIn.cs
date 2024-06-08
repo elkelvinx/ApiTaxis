@@ -5,7 +5,7 @@ using ServicioEncriptacion;
 using System;
 using System.Configuration;
 using System.Data.SqlClient;
-//using System.IdentityModel.Tokens.Jwt;
+using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens.Configuration;
 using System.Net;
 using System.Net.Http;
@@ -106,10 +106,8 @@ namespace Servicios
                 new Claim(ClaimTypes.Role, user.email),
                 new Claim("roles","admin")
             };
-      
 
-            // Crear el token
-            /*
+            // Crear el token            
               var token = new JwtSecurityToken(
                  issuer,
                  audience,
@@ -117,9 +115,7 @@ namespace Servicios
                  expires: DateTime.Now.AddMinutes(60),
                  signingCredentials: credentials);
 
-             return new JwtSecurityTokenHandler().WriteToken(token);
-             */
-            return "Si entro al metodo";
+             return new JwtSecurityTokenHandler().WriteToken(token); 
         }
     }
 }
