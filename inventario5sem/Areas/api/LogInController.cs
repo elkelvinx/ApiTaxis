@@ -26,7 +26,7 @@ namespace TaxisTeodoro.Areas.api
             {
                 var response = _ServicioLogIn.LogIn(Model);
                 if (response == null)
-                    return NotFound();
+                    return Content(HttpStatusCode.Unauthorized, "Usuario o contraseña inválido");
                 return Ok(response);
             }
             catch (ValidationException ex)
