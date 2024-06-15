@@ -65,6 +65,7 @@ namespace Servicios
                             UserPermissions permissions = new UserPermissions
                             {
                                 IdRole = Int16.Parse(reader["idRole"].ToString()),
+                                Driver= Convert.ToBoolean(reader["driver"]),
                                 Admin = Convert.ToBoolean(reader["admin"]),
                                 Permissionaire = Convert.ToBoolean(reader["permissionair"]),
                                 Unit = Convert.ToBoolean(reader["unit"]),
@@ -91,7 +92,7 @@ namespace Servicios
         }
         public string GetJWT(User user, UserPermissions perm)
         {
-            //string jwt = "PPPP";
+          
             var key = ConfigurationManager.AppSettings["Jwt:Key"];
             var issuer = ConfigurationManager.AppSettings["Jwt:Issuer"];
             var audience = ConfigurationManager.AppSettings["Jwt:Audience"];
@@ -101,10 +102,15 @@ namespace Servicios
            {
                 new Claim(ClaimTypes.NameIdentifier, user.name),
                 new Claim(ClaimTypes.Email, user.email),
-                // new Claim(ClaimTypes.GivenName, user.FirstName),
-                //new Claim(ClaimTypes.Surname, user.LastName),
-                new Claim(ClaimTypes.Role, user.email),
-                new Claim("roles","admin")
+                new Claim(ClaimTypes.Role, perm.IdRole.ToString()),
+                new Claim("Driver",perm.Driver.ToString()),
+                new Claim("Admin",perm.Admin.ToString()),
+                new Claim("Permissionaire",perm.Permissionaire.ToString()),
+                new Claim("Unit",perm.Unit.ToString()),
+                new Claim("Sinister",perm.Sinister.ToString()),
+                new Claim("ExtraData",perm.ExtraData.ToString()),
+                new Claim("PDF",perm.Pdf.ToString()),
+                
             };
 
             // Crear el token            
@@ -116,6 +122,18 @@ namespace Servicios
                  signingCredentials: credentials);
 
              return new JwtSecurityTokenHandler().WriteToken(token); 
+        }
+        public String GetRole(int idUser)
+        {
+            switch (idUser) {
+                case 1:
+                    return "Admin";
+                case 2:
+                    return "Guest";
+                case 3:
+                    return "User";                   
+            }
+            return "";
         }
     }
 }
