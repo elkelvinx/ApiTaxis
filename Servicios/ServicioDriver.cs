@@ -57,8 +57,9 @@ namespace Servicios
                 obj.adminName = reader["adminName"].ToString();
                 obj.statusS = reader["statusS"].ToString();
                 list.Add(obj);
-                SqlConnection.ClearPool(con);
+                
             }
+            SqlConnection.ClearPool(con);
             con.Close();
 
             return list;

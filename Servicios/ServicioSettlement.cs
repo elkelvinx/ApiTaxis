@@ -24,6 +24,8 @@ namespace Servicios
                 obj.name = reader["name"].ToString();
                 list.Add(obj);
             }
+            SqlConnection.ClearPool(con);
+            con.Close();
             return list;
         }
         public listSettle consultarNombre()
@@ -40,6 +42,8 @@ namespace Servicios
                 obj.name = reader["name"].ToString();
                 list.Add(obj);
             }
+            SqlConnection.ClearPool(con);
+            con.Close();
             return list;
         }
         public string insertar(settlement obj)
@@ -51,7 +55,13 @@ namespace Servicios
             SqlCommand cmd = new SqlCommand(cadena, con);
             cmd.Parameters.AddWithValue("@name", obj.name);
             try { cmd.ExecuteNonQuery(); }
-            catch (Exception ex) { respuesta = "Error, " + ex.Message.ToString(); }
+            catch (Exception ex) {
+                SqlConnection.ClearPool(con);
+                con.Close();
+                respuesta = "Error, " + ex.Message.ToString(); 
+            }
+            SqlConnection.ClearPool(con);
+            con.Close();
             return respuesta;
         }
         public string Actualizar(settlement obj)
@@ -78,8 +88,12 @@ namespace Servicios
             }
             catch (Exception ex)
             {
+                SqlConnection.ClearPool(con);
+                con.Close();
                 respuesta = "Error " + ex.Message.ToString();
             }
+            SqlConnection.ClearPool(con);
+            con.Close();
             return respuesta;
         }
     }

@@ -1,4 +1,5 @@
 ﻿using Entidades;
+using Entidades.LogIn;
 using Servicios;
 using System;
 using System.Collections.Generic;
@@ -13,10 +14,10 @@ namespace TaxistTeodoro.Areas.api
 
         public HttpResponseMessage Get()
         {
-            var entidad = new listSettle();
-            ServicioSettlement srv = new ServicioSettlement();
-            entidad = srv.consultarColonias();
-            var response = Request.CreateResponse<IEnumerable<settlement>>(System.Net.HttpStatusCode.Created, entidad);
+            var entidad = new listUsersData();
+            ServicioUser srv = new ServicioUser();
+            entidad = srv.ConsultarUsers();
+            var response = Request.CreateResponse<IEnumerable<UserData>>(System.Net.HttpStatusCode.OK, entidad);
             return response;
         }
         public HttpResponseMessage Get(string val)
@@ -32,13 +33,13 @@ namespace TaxistTeodoro.Areas.api
             return response;
 
         }
-        public string Post(settlement obj)
+        public string Post(UserData obj)
         {
-            var srv = new ServicioSettlement();
+            var srv = new ServicioUser();
             string respuesta = "ok";
             try
             {
-                respuesta = srv.insertar(obj);
+                respuesta = srv.Insertar(obj);
             }
             catch (Exception ex) { respuesta = ex.ToString(); }
 

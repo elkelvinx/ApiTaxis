@@ -35,7 +35,7 @@ namespace TaxisTeodoro.Areas.api
             }
             catch (Exception ex)
             {
-                return BadRequest("Error en su usuario o contraseña" + ex);
+                return Content(HttpStatusCode.GatewayTimeout, "Hubo un error con la base de datos, acuda con sistemas");
             }
         }
     }

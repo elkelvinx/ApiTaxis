@@ -61,8 +61,10 @@ namespace TaxistTeodoro.Areas.api
             return response;
 
         }
-        public string Post(string metodo, Arrays data)
+        public string Post(string metodo, Arrays entidad)
         {
+            Arrays data = new Arrays();
+            data.name = entidad.name;
             var srv = new ServicioArrayCR();
             var srelation = new ServicioRelation();
             string res = "ok";
