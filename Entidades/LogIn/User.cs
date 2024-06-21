@@ -31,11 +31,5 @@ namespace Entidades.LogIn
         public User User { get; set; }
         public UserPermissions Permissions { get; set; }
     }
-    [Serializable]
-    [DataContract]
-    public class UserModification
-    {
-
-    }
     public class listUsersData: List<UserData> {};
 }

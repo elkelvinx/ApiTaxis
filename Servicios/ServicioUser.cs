@@ -1,5 +1,7 @@
 ﻿using Entidades;
+using Entidades.Arrays;
 using Entidades.LogIn;
+using Entidades.Response;
 using EO.WebBrowser;
 using ServicioEncriptacion;
 using System;
@@ -54,26 +56,28 @@ namespace Servicios
         }
         public string Insertar(UserData obj)
         {
-            string response = "ok";
-            response = InsertarUser(obj.User);
-            //crear el usuario y obtener su id, para el permissions
-            response = InsertarUserPermission(obj.Permissions);
-            try
+            /*  response=<int>
+                response2=<string>  
+            crear el usuario y obtener su id, para el permissions */
+            var responseUSer = InsertarUser(obj.User);
+            if(responseUSer.Success == false)
             {
-                return "ok";
+                throw new Exception(responseUSer.ErrorMessage);
             }
-            catch (SqlException ex)
+            //insertar permisos al usuario
+            obj.Permissions.IdUser = responseUSer.Data;
+            var responsePermission = InsertarUserPermission(obj.Permissions);
+            if (responsePermission.Success == false)
             {
-                throw new Exception("Error SQL: " + ex.Message);
+                throw new Exception(responseUSer.ErrorMessage);
             }
-            catch (Exception ex)
-            {
-                throw new Exception("Error: " + ex.Message);
-            }
+            return "ok";
         }
-        public string InsertarUser(User obj)
+        public ApiResponse<int> InsertarUser(User obj)
         {
-            string response = "ok";
+            //devolvera id o error
+            var response = new ApiResponse<int>();
+            //encriptacion de datos
             obj.password = _encriptacion.GetSHA256(obj.password);
             //transaction que inserta un User y obtiene el id de ese User
             string cadena = "BEGIN TRANSACTION; " +
@@ -88,56 +92,61 @@ namespace Servicios
                     cmd.Parameters.AddWithValue("@name", obj.name);
                     cmd.Parameters.AddWithValue("@email", obj.email);
                     cmd.Parameters.AddWithValue("@password", obj.password);
-                    cmd.Parameters.AddWithValue("@dateCreated", DateTime.Now);
+                    cmd.Parameters.AddWithValue("@dateCreated", DateTime.UtcNow);
                     try
-                    {
+                    {  
                         con.Open();
-                        int userId = Convert.ToInt32(cmd.ExecuteScalar());
-                        con.Close();
-                        return response;
+                        //recibimos el id del usuario nuevo
+                        response.Data = Convert.ToInt32(cmd.ExecuteScalar());
+                       //seria necesario de no estar en la cadena cmd.Transaction.Commit();
+                        response.Success= true;
                     }
                     catch (SqlException ex)
                     {
-                        con.Close();
-                        throw new Exception("Error SQL: " + ex.Message);
+                        cmd.Transaction.Rollback();
+                        response.Success = false;
+                        response.ErrorMessage = "Error SQL: " + ex.Message;
                     }
                 }
             }
+            return response;
         }
-        public string InsertarUserPermission(UserPermissions obj)
+        public ApiResponse<string> InsertarUserPermission(UserPermissions obj)
         {
-            string cadena = " ";
-            SqlConnection con = ServiciosBD.ObtenerConexion();
-            SqlCommand cmd = new SqlCommand(cadena, con);
-            cmd.Parameters.AddWithValue("@idUser", obj.Id);
-            cmd.Parameters.AddWithValue("@st1", obj.IdUser);
-            cmd.Parameters.AddWithValue("@st2", obj.IdRole);
-            cmd.Parameters.AddWithValue("@st3", obj.Driver);
-            cmd.Parameters.AddWithValue("@extNumber", obj.Admin);
-            cmd.Parameters.AddWithValue("@birth", obj.Permissionaire);
-            cmd.Parameters.AddWithValue("@password", obj.Unit);
-            cmd.Parameters.AddWithValue("@admin", obj.Sinister);
-            cmd.Parameters.AddWithValue("@licenseEx", obj.ExtraData);
-            cmd.Parameters.AddWithValue("@ingressPay", obj.Pdf);
-            try
+            var response = new ApiResponse<string>();
+            string cadena ="BEGIN TRANSACTION; " +
+            "INSERT INTO userPermissions (idUser, idRole, driver, admin, permissionair, unit, sinister, extraData, pdf) " +
+            "VALUES (@idUser, @idRole, @driver, @admin, @permissionair, @unit, @sinister, @extraData, @pdf); " +
+            "COMMIT;";
+            using (SqlConnection con = ServiciosBD.ObtenerConexion())
             {
-                cmd.ExecuteNonQuery();
-                SqlConnection.ClearPool(con);
-                con.Close();
-                return "ok";
+                using (SqlCommand cmd = new SqlCommand(cadena, con))
+                {
+                    cmd.Parameters.AddWithValue("@idUser", obj.IdUser);
+                    cmd.Parameters.AddWithValue("@IdRole", obj.IdRole);
+                    cmd.Parameters.AddWithValue("@driver", obj.Driver);
+                    cmd.Parameters.AddWithValue("@admin", obj.Admin);
+                    cmd.Parameters.AddWithValue("@permissionair", obj.Permissionaire);
+                    cmd.Parameters.AddWithValue("@unit", obj.Unit);
+                    cmd.Parameters.AddWithValue("@sinister", obj.Sinister);
+                    cmd.Parameters.AddWithValue("@extraData", obj.ExtraData);
+                    cmd.Parameters.AddWithValue("@pdf", obj.Pdf);
+                    try
+                    {
+                        con.Open();
+                        cmd.ExecuteNonQuery();
+                        response.Data = "ok";
+                        response.Success = true;
+                    }
+                    catch (SqlException ex)
+                    {
+                        cmd.Transaction.Rollback();
+                        response.Success = false;
+                        response.ErrorMessage = "Error SQL: " + ex.Message;
+                    }
+                }
             }
-            catch (SqlException ex)
-            {
-                SqlConnection.ClearPool(con);
-                con.Close();
-                throw new Exception("Error SQL: " + ex.Message);
-            }
-            catch (Exception ex)
-            {
-                SqlConnection.ClearPool(con);
-                con.Close();
-                throw new Exception("Error: " + ex.Message);
-            }
+            return response;
         }
     }
 }
