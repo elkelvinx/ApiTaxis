@@ -18,41 +18,64 @@ namespace Servicios
         {
             _encriptacion = new Encriptacion();
         }
-        public listUsersData ConsultarUsers()
+        public ApiResponse<listUsersData> ConsultarUsers()
         {
-            string cadena = "select d.name,d.email,d.dateCreated,d.dateOut," +
-                "p.* from UsersData as d Inner Join UserPermissions as p On p.idUser= d.id ";            
-            SqlConnection con = ServiciosBD.ObtenerConexion();
-            SqlCommand command = new SqlCommand(cadena, con);
-            SqlDataReader reader = command.ExecuteReader();
-            listUsersData list = new listUsersData();
-            while (reader.Read())
+            var data= new ApiResponse<listUsersData>();
+            var list = new listUsersData();
+            try
             {
-                UserData obj = new UserData();
-                obj.User = new User(); // Inicializa el objeto User
-                obj.Permissions = new UserPermissions(); // Inicializa el objeto UserPermissions¿
-                obj.User.name= reader["name"].ToString();
-                obj.User.email = reader["email"].ToString();
-                obj.User.dateCreated = DateTime.Parse(reader["dateCreated"].ToString());
-                try { obj.User.dateOut = DateTime.Parse(reader["dateOut"].ToString()); }
-                catch { obj.User.dateOut = new DateTime(1900, 1, 1); }
-                obj.Permissions.IdRole = Int16.Parse(reader["idRole"].ToString());
-                obj.Permissions.Driver = bool.Parse(reader["driver"].ToString());
-                obj.Permissions.Admin = bool.Parse(reader["admin"].ToString());
-                obj.Permissions.Permissionaire = bool.Parse(reader["permissionair"].ToString());
-                obj.Permissions.Unit = bool.Parse(reader["unit"].ToString());
-                obj.Permissions.Sinister = bool.Parse(reader["sinister"].ToString());                
-                obj.Permissions.ExtraData = bool.Parse(reader["extraData"].ToString());
-                obj.Permissions.Pdf = bool.Parse(reader["pdf"].ToString());
-                obj.User.id = Int16.Parse(reader["idUser"].ToString());
-                obj.Permissions.Id = Int16.Parse(reader["id"].ToString());
-                list.Add(obj);
-                SqlConnection.ClearPool(con);
+                using (SqlConnection con = ServiciosBD.ObtenerConexion())
+                {                   
+                    string cadena = "SELECT d.name, d.email, d.dateCreated, d.dateOut, " +
+                                    "p.* FROM UsersData AS d " +
+                                    "INNER JOIN UserPermissions AS p ON p.idUser = d.id";
+                    using (SqlCommand command = new SqlCommand(cadena, con))
+                   
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            var obj = new UserData
+                            {
+                                User = new User
+                                {
+                                    id = Convert.ToInt32(reader["idUser"]),
+                                    name = reader["name"].ToString(),
+                                    email = reader["email"].ToString(),
+                                    dateCreated = Convert.ToDateTime(reader["dateCreated"]),
+                                    dateOut = reader["dateOut"] is DBNull ? DateTime.MinValue : Convert.ToDateTime(reader["dateOut"])
+                                },
+                                Permissions = new UserPermissions
+                                {
+                                    id = Convert.ToInt32(reader["id"]),
+                                    idUser = Convert.ToInt32(reader["idUser"]),
+                                    idRole = Convert.ToInt32(reader["idRole"]),
+                                    driver = Convert.ToBoolean(reader["driver"]),
+                                    admin = Convert.ToBoolean(reader["admin"]),
+                                    permissionaire = Convert.ToBoolean(reader["permissionair"]),
+                                    unit = Convert.ToBoolean(reader["unit"]),
+                                    sinister = Convert.ToBoolean(reader["sinister"]),
+                                    extraData = Convert.ToBoolean(reader["extraData"]),
+                                    pdf = Convert.ToBoolean(reader["pdf"])
+                                }
+                            };
+
+                            list.Add(obj);
+                        }
+                    }
+                    SqlConnection.ClearPool(con);
+                    con.Close();
+                }
             }
-            SqlConnection.ClearPool(con);
-            con.Close();
-            
-            return list;
+            catch (Exception ex)
+            {
+                data.ErrorMessage = ex.Message;
+                data.Success = false;
+                return data;
+            }
+            data.Data = list;
+            data.Success = true;
+            return data;
         }
         public string Insertar(UserData obj)
         {
@@ -65,7 +88,7 @@ namespace Servicios
                 throw new Exception(responseUSer.ErrorMessage);
             }
             //insertar permisos al usuario
-            obj.Permissions.IdUser = responseUSer.Data;
+            obj.Permissions.idUser = responseUSer.Data;
             var responsePermission = InsertarUserPermission(obj.Permissions);
             if (responsePermission.Success == false)
             {
@@ -93,12 +116,14 @@ namespace Servicios
                     cmd.Parameters.AddWithValue("@email", obj.email);
                     cmd.Parameters.AddWithValue("@password", obj.password);
                     cmd.Parameters.AddWithValue("@dateCreated", DateTime.UtcNow);
+                    cmd.Parameters.AddWithValue("@active",1);
                     try
                     {  
-                        con.Open();
+                        //con.Open();
                         //recibimos el id del usuario nuevo
                         response.Data = Convert.ToInt32(cmd.ExecuteScalar());
                        //seria necesario de no estar en la cadena cmd.Transaction.Commit();
+                       con.Close();
                         response.Success= true;
                     }
                     catch (SqlException ex)
@@ -108,6 +133,7 @@ namespace Servicios
                         response.ErrorMessage = "Error SQL: " + ex.Message;
                     }
                 }
+                SqlConnection.ClearPool(con);
             }
             return response;
         }
@@ -122,18 +148,18 @@ namespace Servicios
             {
                 using (SqlCommand cmd = new SqlCommand(cadena, con))
                 {
-                    cmd.Parameters.AddWithValue("@idUser", obj.IdUser);
-                    cmd.Parameters.AddWithValue("@IdRole", obj.IdRole);
-                    cmd.Parameters.AddWithValue("@driver", obj.Driver);
-                    cmd.Parameters.AddWithValue("@admin", obj.Admin);
-                    cmd.Parameters.AddWithValue("@permissionair", obj.Permissionaire);
-                    cmd.Parameters.AddWithValue("@unit", obj.Unit);
-                    cmd.Parameters.AddWithValue("@sinister", obj.Sinister);
-                    cmd.Parameters.AddWithValue("@extraData", obj.ExtraData);
-                    cmd.Parameters.AddWithValue("@pdf", obj.Pdf);
+                    cmd.Parameters.AddWithValue("@idUser", obj.idUser);
+                    cmd.Parameters.AddWithValue("@IdRole", obj.idRole);
+                    cmd.Parameters.AddWithValue("@driver", obj.driver);
+                    cmd.Parameters.AddWithValue("@admin", obj.admin);
+                    cmd.Parameters.AddWithValue("@permissionair", obj.permissionaire);
+                    cmd.Parameters.AddWithValue("@unit", obj.unit);
+                    cmd.Parameters.AddWithValue("@sinister", obj.sinister);
+                    cmd.Parameters.AddWithValue("@extraData", obj.extraData);
+                    cmd.Parameters.AddWithValue("@pdf", obj.pdf);
                     try
                     {
-                        con.Open();
+                        //con.Open();
                         cmd.ExecuteNonQuery();
                         response.Data = "ok";
                         response.Success = true;
@@ -145,8 +171,57 @@ namespace Servicios
                         response.ErrorMessage = "Error SQL: " + ex.Message;
                     }
                 }
+                SqlConnection.ClearPool(con);
             }
             return response;
         }
+        public ApiResponse<string> Actualizar(UserData obj)
+        {
+                var response = new ApiResponse<string>();
+            response.Data = "ok";
+
+                using (SqlConnection con = ServiciosBD.ObtenerConexion())
+                {
+                    // Iniciar la transacción
+                    SqlTransaction transaction = con.BeginTransaction();
+                    try
+                    {
+                        SqlCommand cmdUserData = new SqlCommand("UPDATE usersData SET name=@name," +
+                            "email=@email,password=@password WHERE id=@id", con, transaction);
+                        cmdUserData.Parameters.AddWithValue("@id", obj.User.id);
+                        cmdUserData.Parameters.AddWithValue("@name", obj.User.name);
+                        cmdUserData.Parameters.AddWithValue("@email", obj.User.email);
+                        obj.User.password = _encriptacion.GetSHA256(obj.User.password);
+                        cmdUserData.Parameters.AddWithValue("@password", obj.User.password);        
+                        cmdUserData.Parameters.AddWithValue("@active", obj.User.active);                 
+                         cmdUserData.ExecuteNonQuery();
+                        SqlCommand cmdUserPermissions = new SqlCommand("UPDATE userPermissions SET idRole=@idRole, " +
+                            "driver=@driver, admin=@admin, permissionair=@permissionair, unit=@unit, " +
+                            "sinister=@sinister, extraData=@extraData, pdf=@pdf WHERE idUser=@idUser", con,transaction);
+                        cmdUserPermissions.Parameters.AddWithValue("@idUser", obj.User.id);
+                        cmdUserPermissions.Parameters.AddWithValue("@idRole", obj.Permissions.idRole);
+                        cmdUserPermissions.Parameters.AddWithValue("@driver", obj.Permissions.driver);
+                        cmdUserPermissions.Parameters.AddWithValue("@admin", obj.Permissions.admin);
+                        cmdUserPermissions.Parameters.AddWithValue("@permissionair", obj.Permissions.permissionaire);
+                        cmdUserPermissions.Parameters.AddWithValue("@unit", obj.Permissions.unit);
+                        cmdUserPermissions.Parameters.AddWithValue("@sinister", obj.Permissions.sinister);
+                        cmdUserPermissions.Parameters.AddWithValue("@extraData", obj.Permissions.extraData);
+                        cmdUserPermissions.Parameters.AddWithValue("@pdf", obj.Permissions.pdf);
+                        cmdUserPermissions.ExecuteNonQuery();
+
+                        // Confirmar la transacción
+                        transaction.Commit();
+                    }
+                    catch (Exception ex)
+                    {
+                        // Si ocurre un error, deshacer la transacción
+                        transaction.Rollback();
+                        response.Success = false;
+                        response.ErrorMessage = "Error: " + ex.Message;
+                    }
+                }
+                response.Success = true;
+                return response;
+            }
     }
 }

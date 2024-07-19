@@ -64,14 +64,14 @@ namespace Servicios
                             };
                             UserPermissions permissions = new UserPermissions
                             {
-                                IdRole = Int16.Parse(reader["idRole"].ToString()),
-                                Driver= Convert.ToBoolean(reader["driver"]),
-                                Admin = Convert.ToBoolean(reader["admin"]),
-                                Permissionaire = Convert.ToBoolean(reader["permissionair"]),
-                                Unit = Convert.ToBoolean(reader["unit"]),
-                                Sinister = Convert.ToBoolean(reader["sinister"]),
-                                ExtraData = Convert.ToBoolean(reader["extraData"]),
-                                Pdf = Convert.ToBoolean(reader["pdf"])
+                                idRole = Int16.Parse(reader["idRole"].ToString()),
+                                driver= Convert.ToBoolean(reader["driver"]),
+                                admin = Convert.ToBoolean(reader["admin"]),
+                                permissionaire = Convert.ToBoolean(reader["permissionair"]),
+                                unit = Convert.ToBoolean(reader["unit"]),
+                                sinister = Convert.ToBoolean(reader["sinister"]),
+                                extraData = Convert.ToBoolean(reader["extraData"]),
+                                pdf = Convert.ToBoolean(reader["pdf"])
                             };
                             reader.Close();
                             return new RespuestaObj
@@ -102,14 +102,14 @@ namespace Servicios
            {
                 new Claim(ClaimTypes.NameIdentifier, user.name),
                 new Claim(ClaimTypes.Email, user.email),
-                new Claim(ClaimTypes.Role, perm.IdRole.ToString()),
-                new Claim("Driver",perm.Driver.ToString()),
-                new Claim("Admin",perm.Admin.ToString()),
-                new Claim("Permissionaire",perm.Permissionaire.ToString()),
-                new Claim("Unit",perm.Unit.ToString()),
-                new Claim("Sinister",perm.Sinister.ToString()),
-                new Claim("ExtraData",perm.ExtraData.ToString()),
-                new Claim("PDF",perm.Pdf.ToString()),
+                new Claim(ClaimTypes.Role, perm.idRole.ToString()),
+                new Claim("Driver",perm.driver.ToString()),
+                new Claim("Admin",perm.admin.ToString()),
+                new Claim("Permissionaire",perm.permissionaire.ToString()),
+                new Claim("Unit",perm.unit.ToString()),
+                new Claim("Sinister",perm.sinister.ToString()),
+                new Claim("ExtraData",perm.extraData.ToString()),
+                new Claim("PDF",perm.pdf.ToString()),
                 
             };
 

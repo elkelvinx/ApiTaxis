@@ -14,10 +14,10 @@ namespace TaxistTeodoro.Areas.api
 
         public HttpResponseMessage Get()
         {
-            var entidad = new listUsersData();
-            ServicioUser srv = new ServicioUser();
-            entidad = srv.ConsultarUsers();
-            var response = Request.CreateResponse<IEnumerable<UserData>>(System.Net.HttpStatusCode.OK, entidad);
+            var entidad = new listSettle();
+            ServicioSettlement srv = new ServicioSettlement();
+            entidad = srv.consultarColonias();
+            var response = Request.CreateResponse<IEnumerable<settlement>>(System.Net.HttpStatusCode.Created, entidad);
             return response;
         }
         public HttpResponseMessage Get(string val)

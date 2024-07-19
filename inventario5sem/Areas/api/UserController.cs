@@ -22,10 +22,15 @@ namespace TaxistTeodoro.Areas.api
         
         public HttpResponseMessage Get()    
         {
+            var info = new ApiResponse<listUsersData>();
             try
             {
-                listUsersData entidad = _servicioUser.ConsultarUsers();               
-                var response = Request.CreateResponse<IEnumerable<UserData>>(System.Net.HttpStatusCode.OK, entidad);
+                info= _servicioUser.ConsultarUsers();
+                if(!info.Success)
+                {
+                    return Request.CreateErrorResponse(HttpStatusCode.NotFound, info.ErrorMessage);
+                }
+                var response = Request.CreateResponse<IEnumerable<UserData>>(System.Net.HttpStatusCode.OK, info.Data);
                 return response;
             }
             catch (Exception ex)
@@ -35,7 +40,7 @@ namespace TaxistTeodoro.Areas.api
             
         }
         
-        // GET: api/Admin/5
+        // No necesario
         public HttpResponseMessage Get(int id)
         {
             var entidad = new Unit();
@@ -43,38 +48,41 @@ namespace TaxistTeodoro.Areas.api
             entidad = srv.consultarUnit(id);
             var response = Request.CreateResponse<Unit>(System.Net.HttpStatusCode.Created, entidad);
             return response;
-        }
-
-        // POST: api/Admin
-
-     
-        public string Post(Unit ent)
+        }     
+        public IHttpActionResult Post(UserData obj)
         {
             ApiResponse<string> response = new ApiResponse<string>();
-            var srv = new ServicioUnit();
-            string respuesta = "ok";
+            var srv = new ServicioUser();
             try
             {
-                respuesta = srv.insertar(ent);
+                response.Data = srv.Insertar(obj);
+                if(!response.Success)
+                {
+                    return Content(HttpStatusCode.BadRequest, response);
+                }
             }
-            catch(Exception ex) { respuesta = ex.ToString(); }
-           
-            
-            return respuesta;
+            catch(Exception ex) {
+                return Content(HttpStatusCode.InternalServerError, response.ErrorMessage=ex.Message);
+            }
+            return Content(HttpStatusCode.Created, response);
         }
-
-
-        // PUT: api/Admin/5
-        public string Put(Unit unit)
+        public IHttpActionResult Put(UserData obj)
         {
-            var srv = new ServicioUnit();
-            string res = "ok";
-            try 
+            ApiResponse<string> response = new ApiResponse<string>();
+            var srv = new ServicioUser();
+            try
             {
-                res = srv.Actualizar(unit);
+                response = srv.Actualizar(obj);
+                if (!response.Success)
+                {
+                    return Content(HttpStatusCode.BadRequest, response);
+                }
+                else return Content(HttpStatusCode.Accepted, response);
             }
-            catch (Exception ex) { res = ex.ToString(); }
-            return res;
+            catch (Exception ex)
+            {
+                return Content(HttpStatusCode.InternalServerError, response.ErrorMessage = ex.Message);
+            }
         }
 
         // DELETE: api/Admin/5
