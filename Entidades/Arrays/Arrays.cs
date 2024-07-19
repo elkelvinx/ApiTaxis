@@ -18,5 +18,15 @@ namespace Entidades.Arrays
         public string name { get; set; }
         
     }
+    [Serializable]
+    [DataContract]
+    public class Arrays2
+    { 
+        [DataMember]
+        public string name { get; set; }
+        [DataMember]
+        public string nameMetod { get; set; }
+
+    }
     public class listArray: List<Arrays> { }
 }

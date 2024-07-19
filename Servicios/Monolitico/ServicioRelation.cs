@@ -26,6 +26,8 @@ namespace Servicios.Relation
                 obj.name = reader["name"].ToString();
                 list.Add(obj);
             }
+            SqlConnection.ClearPool(con);
+            con.Close();
             return list;
         }
         public string insertar(Arrays obj)
@@ -38,6 +40,8 @@ namespace Servicios.Relation
             cmd.Parameters.AddWithValue("@name", obj.name);
             try { cmd.ExecuteNonQuery(); }
             catch (Exception ex) { respuesta = "Error, " + ex.Message.ToString(); }
+            SqlConnection.ClearPool(con);
+            con.Close();
             return respuesta;
         }
         public string actualizar(Arrays obj)
@@ -49,6 +53,8 @@ namespace Servicios.Relation
             cmd.Parameters.AddWithValue("@name", obj.name);
             try { cmd.ExecuteNonQuery(); }
             catch (Exception ex) { respuesta = "Error, " + ex.Message.ToString(); }
+            SqlConnection.ClearPool(con);
+            con.Close();
             return respuesta;
         }
         public string eliminar(int id)

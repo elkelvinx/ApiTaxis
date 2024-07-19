@@ -5,7 +5,7 @@ using ServicioEncriptacion;
 using System;
 using System.Configuration;
 using System.Data.SqlClient;
-//using System.IdentityModel.Tokens.Jwt;
+using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens.Configuration;
 using System.Net;
 using System.Net.Http;
@@ -64,13 +64,14 @@ namespace Servicios
                             };
                             UserPermissions permissions = new UserPermissions
                             {
-                                IdRole = Int16.Parse(reader["idRole"].ToString()),
-                                Admin = Convert.ToBoolean(reader["admin"]),
-                                Permissionaire = Convert.ToBoolean(reader["permissionair"]),
-                                Unit = Convert.ToBoolean(reader["unit"]),
-                                Sinister = Convert.ToBoolean(reader["sinister"]),
-                                ExtraData = Convert.ToBoolean(reader["extraData"]),
-                                Pdf = Convert.ToBoolean(reader["pdf"])
+                                idRole = Int16.Parse(reader["idRole"].ToString()),
+                                driver= Convert.ToBoolean(reader["driver"]),
+                                admin = Convert.ToBoolean(reader["admin"]),
+                                permissionaire = Convert.ToBoolean(reader["permissionair"]),
+                                unit = Convert.ToBoolean(reader["unit"]),
+                                sinister = Convert.ToBoolean(reader["sinister"]),
+                                extraData = Convert.ToBoolean(reader["extraData"]),
+                                pdf = Convert.ToBoolean(reader["pdf"])
                             };
                             reader.Close();
                             return new RespuestaObj
@@ -91,7 +92,7 @@ namespace Servicios
         }
         public string GetJWT(User user, UserPermissions perm)
         {
-            //string jwt = "PPPP";
+          
             var key = ConfigurationManager.AppSettings["Jwt:Key"];
             var issuer = ConfigurationManager.AppSettings["Jwt:Issuer"];
             var audience = ConfigurationManager.AppSettings["Jwt:Audience"];
@@ -101,15 +102,18 @@ namespace Servicios
            {
                 new Claim(ClaimTypes.NameIdentifier, user.name),
                 new Claim(ClaimTypes.Email, user.email),
-                // new Claim(ClaimTypes.GivenName, user.FirstName),
-                //new Claim(ClaimTypes.Surname, user.LastName),
-                new Claim(ClaimTypes.Role, user.email),
-                new Claim("roles","admin")
+                new Claim(ClaimTypes.Role, perm.idRole.ToString()),
+                new Claim("Driver",perm.driver.ToString()),
+                new Claim("Admin",perm.admin.ToString()),
+                new Claim("Permissionaire",perm.permissionaire.ToString()),
+                new Claim("Unit",perm.unit.ToString()),
+                new Claim("Sinister",perm.sinister.ToString()),
+                new Claim("ExtraData",perm.extraData.ToString()),
+                new Claim("PDF",perm.pdf.ToString()),
+                
             };
-      
 
-            // Crear el token
-            /*
+            // Crear el token            
               var token = new JwtSecurityToken(
                  issuer,
                  audience,
@@ -117,9 +121,19 @@ namespace Servicios
                  expires: DateTime.Now.AddMinutes(60),
                  signingCredentials: credentials);
 
-             return new JwtSecurityTokenHandler().WriteToken(token);
-             */
-            return "Si entro al metodo";
+             return new JwtSecurityTokenHandler().WriteToken(token); 
+        }
+        public String GetRole(int idUser)
+        {
+            switch (idUser) {
+                case 1:
+                    return "Admin";
+                case 2:
+                    return "Guest";
+                case 3:
+                    return "User";                   
+            }
+            return "";
         }
     }
 }

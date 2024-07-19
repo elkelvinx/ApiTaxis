@@ -14,14 +14,18 @@ namespace Entidades.LogIn
     {
         [DataMember]
         public int id { get; set; }
-        [Required]
+        [DataMember]
         public string name { get; set; }
         [DataMember]
         public string email { get; set; }
-        [Required]
-        public int password { get; set; }
+        [DataMember]
+        public string password { get; set; }
         [DataMember]
         public DateTime dateCreated { get; set; }
+        [DataMember]
+        public DateTime dateOut { get; set; }
+        [DataMember]
+        public bool active {  get; set; }
 
     }
     public class UserData
@@ -29,4 +33,5 @@ namespace Entidades.LogIn
         public User User { get; set; }
         public UserPermissions Permissions { get; set; }
     }
+    public class listUsersData: List<UserData> {};
 }

@@ -1,4 +1,5 @@
 ﻿using Entidades;
+using Entidades.LogIn;
 using Servicios;
 using System;
 using System.Collections.Generic;
@@ -32,13 +33,13 @@ namespace TaxistTeodoro.Areas.api
             return response;
 
         }
-        public string Post(settlement obj)
+        public string Post(UserData obj)
         {
-            var srv = new ServicioSettlement();
+            var srv = new ServicioUser();
             string respuesta = "ok";
             try
             {
-                respuesta = srv.insertar(obj);
+                respuesta = srv.Insertar(obj);
             }
             catch (Exception ex) { respuesta = ex.ToString(); }
 
