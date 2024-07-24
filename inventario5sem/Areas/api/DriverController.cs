@@ -109,16 +109,6 @@ namespace TaxistTeodoro.Areas.api
             }
 
         }
-        /*
-         public void Post(listarCliente ent)
-        {
-            var srv = new ServicioCliente();
-            foreach (var item in ent)
-            {
-                srv.insertar(item);
-            }
-        }
-         */
     }
 }
 
