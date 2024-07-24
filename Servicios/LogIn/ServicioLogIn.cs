@@ -61,6 +61,7 @@ namespace Servicios
                                 name = reader["name"].ToString(),
                                 email = reader["email"].ToString(),
                                 dateCreated = DateTime.Parse(reader["dateCreated"].ToString()),
+                                active= Boolean.Parse(reader["active"].ToString()),
                             };
                             UserPermissions permissions = new UserPermissions
                             {
@@ -74,10 +75,12 @@ namespace Servicios
                                 pdf = Convert.ToBoolean(reader["pdf"])
                             };
                             reader.Close();
-                            return new RespuestaObj
-                            {
-                                Data = new UserData { User = user, Permissions = permissions }
-                            };
+                            if (user.active == true)
+                                return new RespuestaObj
+                                {
+                                    Data = new UserData { User = user, Permissions = permissions }
+                                };
+                            else return new RespuestaObj { ErrorMessage = "El usuario actualmente esta desactivado, contacte con sistemas" };
                         }
                     }
                 }

@@ -1,13 +1,9 @@
-﻿using Entidades;
-using Entidades.Arrays;
+﻿using Entidades.Arrays;
 using Entidades.LogIn;
-using Entidades.Response;
-using EO.WebBrowser;
 using ServicioEncriptacion;
 using System;
-using System.Collections.Generic;
 using System.Data.SqlClient;
-using static System.Net.Mime.MediaTypeNames;
+using System.Transactions;
 
 namespace Servicios
 {
@@ -20,17 +16,17 @@ namespace Servicios
         }
         public ApiResponse<listUsersData> ConsultarUsers()
         {
-            var data= new ApiResponse<listUsersData>();
+            var data = new ApiResponse<listUsersData>();
             var list = new listUsersData();
             try
             {
                 using (SqlConnection con = ServiciosBD.ObtenerConexion())
-                {                   
-                    string cadena = "SELECT d.name, d.email, d.dateCreated, d.dateOut, " +
+                {
+                    string cadena = "SELECT d.name, d.email, d.dateCreated, d.dateOut,d.active, " +
                                     "p.* FROM UsersData AS d " +
                                     "INNER JOIN UserPermissions AS p ON p.idUser = d.id";
                     using (SqlCommand command = new SqlCommand(cadena, con))
-                   
+
                     using (SqlDataReader reader = command.ExecuteReader())
                     {
                         while (reader.Read())
@@ -43,7 +39,8 @@ namespace Servicios
                                     name = reader["name"].ToString(),
                                     email = reader["email"].ToString(),
                                     dateCreated = Convert.ToDateTime(reader["dateCreated"]),
-                                    dateOut = reader["dateOut"] is DBNull ? DateTime.MinValue : Convert.ToDateTime(reader["dateOut"])
+                                    dateOut = reader["dateOut"] is DBNull ? DateTime.MinValue : Convert.ToDateTime(reader["dateOut"]),
+                                    active= bool.Parse(reader["active"].ToString())
                                 },
                                 Permissions = new UserPermissions
                                 {
@@ -83,7 +80,7 @@ namespace Servicios
                 response2=<string>  
             crear el usuario y obtener su id, para el permissions */
             var responseUSer = InsertarUser(obj.User);
-            if(responseUSer.Success == false)
+            if (responseUSer.Success == false)
             {
                 throw new Exception(responseUSer.ErrorMessage);
             }
@@ -116,15 +113,15 @@ namespace Servicios
                     cmd.Parameters.AddWithValue("@email", obj.email);
                     cmd.Parameters.AddWithValue("@password", obj.password);
                     cmd.Parameters.AddWithValue("@dateCreated", DateTime.UtcNow);
-                    cmd.Parameters.AddWithValue("@active",1);
+                    cmd.Parameters.AddWithValue("@active", 1);
                     try
-                    {  
+                    {
                         //con.Open();
                         //recibimos el id del usuario nuevo
                         response.Data = Convert.ToInt32(cmd.ExecuteScalar());
-                       //seria necesario de no estar en la cadena cmd.Transaction.Commit();
-                       con.Close();
-                        response.Success= true;
+                        //seria necesario de no estar en la cadena cmd.Transaction.Commit();
+                        con.Close();
+                        response.Success = true;
                     }
                     catch (SqlException ex)
                     {
@@ -140,7 +137,7 @@ namespace Servicios
         public ApiResponse<string> InsertarUserPermission(UserPermissions obj)
         {
             var response = new ApiResponse<string>();
-            string cadena ="BEGIN TRANSACTION; " +
+            string cadena = "BEGIN TRANSACTION; " +
             "INSERT INTO userPermissions (idUser, idRole, driver, admin, permissionair, unit, sinister, extraData, pdf) " +
             "VALUES (@idUser, @idRole, @driver, @admin, @permissionair, @unit, @sinister, @extraData, @pdf); " +
             "COMMIT;";
@@ -177,51 +174,73 @@ namespace Servicios
         }
         public ApiResponse<string> Actualizar(UserData obj)
         {
-                var response = new ApiResponse<string>();
+            var response = new ApiResponse<string>();
             response.Data = "ok";
 
-                using (SqlConnection con = ServiciosBD.ObtenerConexion())
+            using (SqlConnection con = ServiciosBD.ObtenerConexion())
+            {
+                // Iniciar la transacción
+                SqlTransaction transaction = con.BeginTransaction();
+                try
                 {
-                    // Iniciar la transacción
-                    SqlTransaction transaction = con.BeginTransaction();
-                    try
-                    {
-                        SqlCommand cmdUserData = new SqlCommand("UPDATE usersData SET name=@name," +
-                            "email=@email,password=@password WHERE id=@id", con, transaction);
-                        cmdUserData.Parameters.AddWithValue("@id", obj.User.id);
-                        cmdUserData.Parameters.AddWithValue("@name", obj.User.name);
-                        cmdUserData.Parameters.AddWithValue("@email", obj.User.email);
-                        obj.User.password = _encriptacion.GetSHA256(obj.User.password);
-                        cmdUserData.Parameters.AddWithValue("@password", obj.User.password);        
-                        cmdUserData.Parameters.AddWithValue("@active", obj.User.active);                 
-                         cmdUserData.ExecuteNonQuery();
-                        SqlCommand cmdUserPermissions = new SqlCommand("UPDATE userPermissions SET idRole=@idRole, " +
-                            "driver=@driver, admin=@admin, permissionair=@permissionair, unit=@unit, " +
-                            "sinister=@sinister, extraData=@extraData, pdf=@pdf WHERE idUser=@idUser", con,transaction);
-                        cmdUserPermissions.Parameters.AddWithValue("@idUser", obj.User.id);
-                        cmdUserPermissions.Parameters.AddWithValue("@idRole", obj.Permissions.idRole);
-                        cmdUserPermissions.Parameters.AddWithValue("@driver", obj.Permissions.driver);
-                        cmdUserPermissions.Parameters.AddWithValue("@admin", obj.Permissions.admin);
-                        cmdUserPermissions.Parameters.AddWithValue("@permissionair", obj.Permissions.permissionaire);
-                        cmdUserPermissions.Parameters.AddWithValue("@unit", obj.Permissions.unit);
-                        cmdUserPermissions.Parameters.AddWithValue("@sinister", obj.Permissions.sinister);
-                        cmdUserPermissions.Parameters.AddWithValue("@extraData", obj.Permissions.extraData);
-                        cmdUserPermissions.Parameters.AddWithValue("@pdf", obj.Permissions.pdf);
-                        cmdUserPermissions.ExecuteNonQuery();
+                    SqlCommand cmdUserData = new SqlCommand("UPDATE usersData SET name=@name," +
+                        "email=@email,password=@password WHERE id=@id", con, transaction);
+                    cmdUserData.Parameters.AddWithValue("@id", obj.User.id);
+                    cmdUserData.Parameters.AddWithValue("@name", obj.User.name);
+                    cmdUserData.Parameters.AddWithValue("@email", obj.User.email);
+                    obj.User.password = _encriptacion.GetSHA256(obj.User.password);
+                    cmdUserData.Parameters.AddWithValue("@password", obj.User.password);
+                    cmdUserData.Parameters.AddWithValue("@active", obj.User.active);
+                    cmdUserData.ExecuteNonQuery();
+                    SqlCommand cmdUserPermissions = new SqlCommand("UPDATE userPermissions SET idRole=@idRole, " +
+                        "driver=@driver, admin=@admin, permissionair=@permissionair, unit=@unit, " +
+                        "sinister=@sinister, extraData=@extraData, pdf=@pdf WHERE idUser=@idUser", con, transaction);
+                    cmdUserPermissions.Parameters.AddWithValue("@idUser", obj.User.id);
+                    cmdUserPermissions.Parameters.AddWithValue("@idRole", obj.Permissions.idRole);
+                    cmdUserPermissions.Parameters.AddWithValue("@driver", obj.Permissions.driver);
+                    cmdUserPermissions.Parameters.AddWithValue("@admin", obj.Permissions.admin);
+                    cmdUserPermissions.Parameters.AddWithValue("@permissionair", obj.Permissions.permissionaire);
+                    cmdUserPermissions.Parameters.AddWithValue("@unit", obj.Permissions.unit);
+                    cmdUserPermissions.Parameters.AddWithValue("@sinister", obj.Permissions.sinister);
+                    cmdUserPermissions.Parameters.AddWithValue("@extraData", obj.Permissions.extraData);
+                    cmdUserPermissions.Parameters.AddWithValue("@pdf", obj.Permissions.pdf);
+                    cmdUserPermissions.ExecuteNonQuery();
 
-                        // Confirmar la transacción
-                        transaction.Commit();
-                    }
-                    catch (Exception ex)
-                    {
-                        // Si ocurre un error, deshacer la transacción
-                        transaction.Rollback();
-                        response.Success = false;
-                        response.ErrorMessage = "Error: " + ex.Message;
-                    }
+                    // Confirmar la transacción
+                    transaction.Commit();
                 }
-                response.Success = true;
-                return response;
+                catch (Exception ex)
+                {
+                    // Si ocurre un error, deshacer la transacción
+                    transaction.Rollback();
+                    response.Success = false;
+                    response.ErrorMessage = "Error: " + ex.Message;
+                }
             }
+            response.Success = true;
+            return response;
+        }
+        public ApiResponse<string> softDelete(int id)
+        {
+            var response = new ApiResponse<string>();
+            response.Data = "ok";
+            using (SqlConnection con = ServiciosBD.ObtenerConexion())
+            {
+                try
+                {
+                    SqlCommand cmd = new SqlCommand("update userData set active=false where id=@id", con);
+                    cmd.Parameters.AddWithValue("@id", id);
+                    cmd.ExecuteNonQuery();
+                    response.Success = true;
+                    return response;
+                }
+                catch (Exception ex)
+                {
+                    response.Success = false;
+                    response.ErrorMessage = "Error: " + ex.Message;
+                }
+            }
+            return response;
+        }
     }
 }
