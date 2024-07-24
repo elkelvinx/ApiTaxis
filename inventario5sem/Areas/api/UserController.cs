@@ -39,16 +39,6 @@ namespace TaxistTeodoro.Areas.api
             } 
             
         }
-        
-        // No necesario
-        public HttpResponseMessage Get(int id)
-        {
-            var entidad = new Unit();
-            var srv = new ServicioUnit();
-            entidad = srv.consultarUnit(id);
-            var response = Request.CreateResponse<Unit>(System.Net.HttpStatusCode.Created, entidad);
-            return response;
-        }     
         public IHttpActionResult Post(UserData obj)
         {
             ApiResponse<string> response = new ApiResponse<string>();
@@ -84,18 +74,22 @@ namespace TaxistTeodoro.Areas.api
                 return Content(HttpStatusCode.InternalServerError, response.ErrorMessage = ex.Message);
             }
         }
-
-        // DELETE: api/Admin/5
-        public string Delete(int id)
+        public IHttpActionResult Delete(int id)
         {
-            var res = "ok";
-            var srv = new ServicioAdmin();
+            ApiResponse<string> response = new ApiResponse<string>();
+            var srv = new ServicioUser();
             try
             {
-                srv.eliminar(id);
+                srv.softDelete(id);
+                if (!response.Success)
+                {
+                    return Content(HttpStatusCode.BadRequest, response);
+                }
+                else return Content(HttpStatusCode.Accepted, response);
             }
-            catch(Exception ex) { res = ex.ToString(); }
-            return res;
+            catch(Exception ex) { 
+                return Content(HttpStatusCode.InternalServerError, response.ErrorMessage = ex.Message);
+            }
         }
 
     }
