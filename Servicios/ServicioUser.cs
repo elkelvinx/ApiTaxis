@@ -39,6 +39,7 @@ namespace Servicios
                                     name = reader["name"].ToString(),
                                     email = reader["email"].ToString(),
                                     dateCreated = Convert.ToDateTime(reader["dateCreated"]),
+                                    //CORREGIR
                                     dateOut = reader["dateOut"] is DBNull ? DateTime.MinValue : Convert.ToDateTime(reader["dateOut"]),
                                     active = bool.Parse(reader["active"].ToString())
                                 },
