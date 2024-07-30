@@ -7,8 +7,6 @@ using System.Net;
 using System.Web.Http;
 using System.IdentityModel.Tokens.Jwt;
 using System.Reflection;
-
-
 namespace TaxisTeodoro.Areas.api
 {
     public class LogInController : ApiController
@@ -28,17 +26,13 @@ namespace TaxisTeodoro.Areas.api
             try
             {
                 var response = _ServicioLogIn.LogIn(Model);
-                if (response == null)
-                    return Content(HttpStatusCode.Unauthorized, "Usuario o contraseña inválido");
+                if (response.IsSuccess == false)
+                    return Content(HttpStatusCode.Unauthorized, response.ErrorMessage);
                 return Ok(response);
-            }
-            catch (ValidationException ex)
-            {
-                return BadRequest(ex.Message);
             }
             catch (Exception ex)
             {
-                return Content(HttpStatusCode.GatewayTimeout, "Hubo un error con la base de datos, acuda con sistemas" + ex.Message) ;
+                return Content(HttpStatusCode.GatewayTimeout, "Hubo un error con la base de datos, acuda con sistemas. " + ex.Message) ;
             }
         }
         public IHttpActionResult Post(UserData obj)

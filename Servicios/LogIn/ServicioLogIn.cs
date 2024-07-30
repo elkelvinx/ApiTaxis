@@ -11,10 +11,14 @@ using System.Net;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Text;
+using Entidades.Arrays;
 
 namespace Servicios
 {
+    public interface IPrincipal
+    {
 
+    }
     public class ServicioLogIn
     {
         public AppDomainInitializer AppDomainInitializer { get; set; }
@@ -30,22 +34,36 @@ namespace Servicios
         {
             Model = EncriptData(Model);
             var Response = ValidationUser(Model);
-            if (Response.IsSuccess == true)
+            if (Response.Success == true)
             {
-                _userData = (UserData)Response.Data;
-                var JWT = GetJWT(_userData.User, _userData.Permissions);
-                return new RespuestaJWT { Token = JWT };
+                try
+                {
+                    _userData = (UserData)Response.Data;
+                    //Aqui se encargara de registrar el history logIn
+                    var JWT = GetJWT(_userData.User, _userData.Permissions);
+                    return new RespuestaJWT { Token = JWT };
+                }
+                catch (Exception ex)
+                {
+                    return new RespuestaJWT { ErrorMessage = "Error al intentar hacer el JWT, contacte con sistemas. "+ ex };
+                }
             }
             else
-                //return new RespuestaJWT { ErrorMessage = "Nombre de usuario Invalido" };
-                return null;
+                return new RespuestaJWT { ErrorMessage = Response.ErrorMessage };
         }
-        private RespuestaObj ValidationUser(AuthRequest Model)
+        private ApiResponse<UserData> ValidationUser(AuthRequest Model)
         {
             var query = "SELECT d.*, p.* FROM usersData AS d " +
                         "INNER JOIN userPermissions AS p ON d.id = p.idUser " +
-                        "WHERE d.name = @name AND d.password = @password";
-
+                        "WHERE d.name = @name AND d.password = @password ";
+            var response = new ApiResponse<UserData>
+            {
+                Data = new UserData
+                {
+                    User = new User(),
+                    Permissions = new UserPermissions()
+                }
+            };
             using (SqlConnection con = ServiciosBD.ObtenerConexion())
             {
                 using (SqlCommand cmd = new SqlCommand(query, con))
@@ -62,6 +80,7 @@ namespace Servicios
                                 email = reader["email"].ToString(),
                                 dateCreated = DateTime.Parse(reader["dateCreated"].ToString()),
                                 active= Boolean.Parse(reader["active"].ToString()),
+                                bloqued= Boolean.Parse(reader["bloqued"].ToString())
                             };
                             UserPermissions permissions = new UserPermissions
                             {
@@ -72,20 +91,26 @@ namespace Servicios
                                 unit = Convert.ToBoolean(reader["unit"]),
                                 sinister = Convert.ToBoolean(reader["sinister"]),
                                 extraData = Convert.ToBoolean(reader["extraData"]),
-                                pdf = Convert.ToBoolean(reader["pdf"])
+                                pdf = Convert.ToBoolean(reader["pdf"]),
+                                changeLog= Convert.ToBoolean(reader["changeLog"])
                             };
                             reader.Close();
                             if (user.active == true)
-                                return new RespuestaObj
-                                {
-                                    Data = new UserData { User = user, Permissions = permissions }
-                                };
-                            else return new RespuestaObj { ErrorMessage = "El usuario actualmente esta desactivado, contacte con sistemas" };
+                            {
+                                response.Data.User = user;
+                                response.Data.Permissions = permissions;
+                                response.Success = true;
+                                return response;
+                            }
+                            else {
+                                response.ErrorMessage = "El usuario actualmente esta desactivado, contacte con sistemas";
+                                return response; }
                         }
                     }
                 }
             }
-            return new RespuestaObj { ErrorMessage = "Fallo en el proceso" };
+            response.ErrorMessage = "Usuario o contraseña invalidos";
+                return response;
         }
         private AuthRequest EncriptData(AuthRequest Model)
         {
@@ -94,8 +119,7 @@ namespace Servicios
             return Model;
         }
         public string GetJWT(User user, UserPermissions perm)
-        {
-          
+        {          
             var key = ConfigurationManager.AppSettings["Jwt:Key"];
             var issuer = ConfigurationManager.AppSettings["Jwt:Issuer"];
             var audience = ConfigurationManager.AppSettings["Jwt:Audience"];
@@ -106,12 +130,15 @@ namespace Servicios
                 new Claim(ClaimTypes.NameIdentifier, user.name),
                 new Claim(ClaimTypes.Email, user.email),
                 new Claim(ClaimTypes.Role, perm.idRole.ToString()),
+                new Claim("active", user.active.ToString()),
+                new Claim("bloqued", user.bloqued.ToString()),
                 new Claim("Driver",perm.driver.ToString()),
                 new Claim("Admin",perm.admin.ToString()),
                 new Claim("Permissionaire",perm.permissionaire.ToString()),
                 new Claim("Unit",perm.unit.ToString()),
                 new Claim("Sinister",perm.sinister.ToString()),
                 new Claim("ExtraData",perm.extraData.ToString()),
+                new Claim("ChangeLog", perm.changeLog.ToString()),
                 new Claim("PDF",perm.pdf.ToString()),
                 
             };

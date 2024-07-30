@@ -31,6 +31,8 @@ namespace Entidades.LogIn
         [DataMember]
         public bool extraData { get; set; }
         [DataMember]
+        public bool changeLog { get; set;}
+        [DataMember]
         public bool pdf { get; set; }
     }
 }

@@ -40,7 +40,7 @@ namespace Servicios
                                     email = reader["email"].ToString(),
                                     dateCreated = Convert.ToDateTime(reader["dateCreated"]),
                                     dateOut = reader["dateOut"] is DBNull ? DateTime.MinValue : Convert.ToDateTime(reader["dateOut"]),
-                                    active= bool.Parse(reader["active"].ToString())
+                                    active = bool.Parse(reader["active"].ToString())
                                 },
                                 Permissions = new UserPermissions
                                 {
@@ -53,6 +53,7 @@ namespace Servicios
                                     unit = Convert.ToBoolean(reader["unit"]),
                                     sinister = Convert.ToBoolean(reader["sinister"]),
                                     extraData = Convert.ToBoolean(reader["extraData"]),
+                                    changeLog= Convert.ToBoolean(reader["changeLog"]),
                                     pdf = Convert.ToBoolean(reader["pdf"])
                                 }
                             };
@@ -179,22 +180,36 @@ namespace Servicios
 
             using (SqlConnection con = ServiciosBD.ObtenerConexion())
             {
-                // Iniciar la transacción
                 SqlTransaction transaction = con.BeginTransaction();
                 try
                 {
                     SqlCommand cmdUserData = new SqlCommand("UPDATE usersData SET name=@name," +
-                        "email=@email,password=@password WHERE id=@id", con, transaction);
+                        "email=@email,active=@active,password=@password,dateOut=@dateOut,bloqued=@bloqued WHERE id=@id", con, transaction);
                     cmdUserData.Parameters.AddWithValue("@id", obj.User.id);
                     cmdUserData.Parameters.AddWithValue("@name", obj.User.name);
                     cmdUserData.Parameters.AddWithValue("@email", obj.User.email);
-                    obj.User.password = _encriptacion.GetSHA256(obj.User.password);
-                    cmdUserData.Parameters.AddWithValue("@password", obj.User.password);
                     cmdUserData.Parameters.AddWithValue("@active", obj.User.active);
-                    cmdUserData.ExecuteNonQuery();
+                    cmdUserData.Parameters.AddWithValue("@bloqued", obj.User.bloqued);
+                    if (obj.User.active == true)
+                        cmdUserData.Parameters.AddWithValue("@dateOut", DateTime.Parse("1800-01-01T00:00:00"));
+                    //en caso de que la fecha sea default y tenga que poner la actual
+                    else if (obj.User.dateOut >= DateTime.Parse("1800-01-01T00:00:00"))
+                     cmdUserData.Parameters.AddWithValue("@dateOut", DateTime.Now);
+                   //if dateOut ya tiene una fecha real
+                    else
+                        cmdUserData.CommandText = cmdUserData.CommandText.Replace(",dateOut=@dateOut", "");
+                    //password verification
+                    if (string.IsNullOrEmpty(obj.User.password))
+                        cmdUserData.CommandText = cmdUserData.CommandText.Replace(",password=@password", "");
+                    else
+                    {
+                        obj.User.password = _encriptacion.GetSHA256(obj.User.password);
+                        cmdUserData.Parameters.AddWithValue("@password", obj.User.password);
+                    }
+                    cmdUserData.ExecuteNonQuery();  
                     SqlCommand cmdUserPermissions = new SqlCommand("UPDATE userPermissions SET idRole=@idRole, " +
                         "driver=@driver, admin=@admin, permissionair=@permissionair, unit=@unit, " +
-                        "sinister=@sinister, extraData=@extraData, pdf=@pdf WHERE idUser=@idUser", con, transaction);
+                        "sinister=@sinister, extraData=@extraData, changeLog=@changeLog, pdf=@pdf WHERE idUser=@idUser", con, transaction);
                     cmdUserPermissions.Parameters.AddWithValue("@idUser", obj.User.id);
                     cmdUserPermissions.Parameters.AddWithValue("@idRole", obj.Permissions.idRole);
                     cmdUserPermissions.Parameters.AddWithValue("@driver", obj.Permissions.driver);
@@ -203,15 +218,13 @@ namespace Servicios
                     cmdUserPermissions.Parameters.AddWithValue("@unit", obj.Permissions.unit);
                     cmdUserPermissions.Parameters.AddWithValue("@sinister", obj.Permissions.sinister);
                     cmdUserPermissions.Parameters.AddWithValue("@extraData", obj.Permissions.extraData);
+                    cmdUserPermissions.Parameters.AddWithValue("@changeLog", obj.Permissions.changeLog);
                     cmdUserPermissions.Parameters.AddWithValue("@pdf", obj.Permissions.pdf);
                     cmdUserPermissions.ExecuteNonQuery();
-
-                    // Confirmar la transacción
                     transaction.Commit();
                 }
                 catch (Exception ex)
                 {
-                    // Si ocurre un error, deshacer la transacción
                     transaction.Rollback();
                     response.Success = false;
                     response.ErrorMessage = "Error: " + ex.Message;

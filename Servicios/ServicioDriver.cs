@@ -195,11 +195,9 @@ namespace Servicios
             cmd.Parameters.AddWithValue("@licenseEx", obj.licenseEx);
             cmd.Parameters.AddWithValue("@ingressPay", obj.ingressPay);
             cmd.Parameters.AddWithValue("@status", obj.status);
-            cmd.ExecuteNonQuery();
             /*
                try { cmd.ExecuteNonQuery(); }
             catch (Exception ex) { respuesta = "Error, " + ex.Message.ToString(); }*/
-            con.Close();
             try
             {
                 cmd.ExecuteNonQuery();
