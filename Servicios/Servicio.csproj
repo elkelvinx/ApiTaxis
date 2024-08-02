@@ -202,6 +202,7 @@
     <Compile Include="Encription\ServicioEncriptacion.cs" />
     <Compile Include="LogIn\IUserService.cs" />
     <Compile Include="LogIn\ServicioLogIn.cs" />
+    <Compile Include="ServicioErrorLog.cs" />
     <Compile Include="ServicioUser.cs" />
     <Compile Include="Monolitico\ServicioArrayUD.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

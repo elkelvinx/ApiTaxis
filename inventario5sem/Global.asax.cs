@@ -1,4 +1,5 @@
 //using Microsoft.IdentityModel.Tokens;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -21,7 +22,7 @@ namespace inventario5sem
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
         }
-        /*
+        
           private void ConfigureAuth()
          {
              var issuer = ConfigurationManager.AppSettings["Jwt:Issuer"];
@@ -41,7 +42,7 @@ namespace inventario5sem
 
              // Configura la autenticación JWT aquí...
          }
-         */
+         
         private void EnableCrossDmainAjaxCall()
         {
             //HttpContext.Current.Response.AddHeader("Access-Control-Allow-Origin",
