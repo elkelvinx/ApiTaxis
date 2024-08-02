@@ -81,7 +81,12 @@ namespace Servicios
             /*  response=<int>
                 response2=<string>  
             crear el usuario y obtener su id, para el permissions */
-            var responseUSer = InsertarUser(obj.User);
+            var responseUSer = VerifyUser(obj.User.name);
+            if (responseUSer.Success == false)
+            {
+                throw new Exception(responseUSer.ErrorMessage);
+            }
+            responseUSer = InsertarUser(obj.User);
             if (responseUSer.Success == false)
             {
                 throw new Exception(responseUSer.ErrorMessage);
@@ -94,6 +99,23 @@ namespace Servicios
                 throw new Exception(responseUSer.ErrorMessage);
             }
             return "ok";
+        }
+        public ApiResponse<int> VerifyUser(string nameUser)
+        {
+            var response = new ApiResponse<int>();
+            string cadena = "select id from usersData where name= @name";
+            SqlConnection con = ServiciosBD.ObtenerConexion();
+            SqlCommand command = new SqlCommand(cadena, con);
+            command.Parameters.AddWithValue("@name", nameUser);
+            SqlDataReader reader = command.ExecuteReader();
+            if (reader.Read())
+            {
+                response.Success = false;
+                response.ErrorMessage = "El nombre de usuario ya esta en uso, porfavor escoga otro. ";
+            }
+            else
+                response.Success = true;
+            return response;
         }
         public ApiResponse<int> InsertarUser(User obj)
         {
