@@ -142,12 +142,26 @@ namespace Servicios
                 new Claim("PDF",perm.pdf.ToString()),
                 
             };
+            // Crear el token opcionA
+            /*
+                var claimsIdentity = new ClaimsIdentity(claims, "CustomAuthenticationClaim");
+               var tokenHandler = new JwtSecurityTokenHandler();
+               var jwtSecurityToken = tokenHandler.CreateJwtSecurityToken(
+                   audience: audience,
+                   issuer: issuer,
+                   subject: claimsIdentity,               
+                   notBefore: DateTime.UtcNow,
+                   expires: DateTime.Now.AddMinutes(60),
+                   signingCredentials: credentials);
+               var jwtTokenString = tokenHandler.WriteToken(jwtSecurityToken);
 
-            // Crear el token            
-              var token = new JwtSecurityToken(
+             */
+            // Crear el token opcionB         
+            var token = new JwtSecurityToken(
                  issuer,
                  audience,
                  claims,
+                 //notBefore: DateTime.UtcNow,
                  expires: DateTime.Now.AddMinutes(60),
                  signingCredentials: credentials);
 
