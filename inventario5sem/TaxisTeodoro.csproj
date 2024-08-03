@@ -283,6 +283,8 @@
     <Compile Include="Areas\api\ContactDrvController.cs" />
     <Compile Include="Areas\api\SinisterController.cs" />
     <Compile Include="Areas\api\LogInController.cs" />
+    <Compile Include="Areas\api\TokenGenerator.cs" />
+    <Compile Include="Areas\api\TokenValidationHandler.cs" />
     <Compile Include="Areas\api\UserController.cs" />
     <Compile Include="Areas\api\UnitController.cs" />
     <Compile Include="Areas\api\StreetController.cs" />

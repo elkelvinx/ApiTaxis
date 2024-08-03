@@ -13,6 +13,7 @@ using System.Web.Http;
 
 namespace TaxistTeodoro.Areas.api
 {
+    [Authorize]
     public class DriverController : ApiController
     {
         private readonly ServicioDriver _servicioDriver;

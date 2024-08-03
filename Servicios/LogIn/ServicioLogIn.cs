@@ -143,7 +143,7 @@ namespace Servicios
                 
             };
             // Crear el token opcionA
-            /*
+            
                 var claimsIdentity = new ClaimsIdentity(claims, "CustomAuthenticationClaim");
                var tokenHandler = new JwtSecurityTokenHandler();
                var jwtSecurityToken = tokenHandler.CreateJwtSecurityToken(
@@ -151,12 +151,12 @@ namespace Servicios
                    issuer: issuer,
                    subject: claimsIdentity,               
                    notBefore: DateTime.UtcNow,
-                   expires: DateTime.Now.AddMinutes(60),
+                   expires: DateTime.UtcNow.AddMinutes(120),
                    signingCredentials: credentials);
-               var jwtTokenString = tokenHandler.WriteToken(jwtSecurityToken);
-
-             */
-            // Crear el token opcionB         
+            var jwtTokenString = tokenHandler.WriteToken(jwtSecurityToken);
+            return jwtTokenString;
+            // Crear el token opcionB
+            /*
             var token = new JwtSecurityToken(
                  issuer,
                  audience,
@@ -166,6 +166,7 @@ namespace Servicios
                  signingCredentials: credentials);
 
              return new JwtSecurityTokenHandler().WriteToken(token); 
+            */
         }
         public String GetRole(int idUser)
         {

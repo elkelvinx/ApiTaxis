@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Http;
+using University.API.Controllers;
 
 namespace inventario5sem
 {
@@ -13,7 +14,8 @@ namespace inventario5sem
 
             // Rutas de Web API
             config.MapHttpAttributeRoutes();
-
+            //ESTE ES EL VALIDATION DEL JWT 
+            config.MessageHandlers.Add(new TokenValidationHandler());
             config.Routes.MapHttpRoute(
                 name: "DefaultApi",
                 routeTemplate: "api/{controller}/{id}",
