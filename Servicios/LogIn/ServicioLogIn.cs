@@ -45,7 +45,9 @@ namespace Servicios
                 }
                 catch (Exception ex)
                 {
+
                     return new RespuestaJWT { ErrorMessage = "Error al intentar hacer el JWT, contacte con sistemas. "+ ex };
+
                 }
             }
             else
