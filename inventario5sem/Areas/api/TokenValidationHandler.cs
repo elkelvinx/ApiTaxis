@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
+using System.Web.Http;
 
 namespace University.API.Controllers
 {
@@ -63,6 +64,15 @@ namespace University.API.Controllers
                 HttpContext.Current.User = tokenHandler.ValidateToken(token, validationParameters, out securityToken);
 
                 return base.SendAsync(request, cancellationToken);
+            }
+            catch (SecurityTokenInvalidLifetimeException)
+            {
+                // JWT caducado
+                var response = new HttpResponseMessage(HttpStatusCode.Unauthorized)
+                {
+                    Content = new StringContent("Tu sesión ha expirado. Por favor, inicia sesión nuevamente.")
+                };
+                throw new HttpResponseException(response);
             }
             catch (SecurityTokenValidationException)
             {

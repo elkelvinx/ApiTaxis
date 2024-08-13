@@ -9,7 +9,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Reflection;
 namespace TaxisTeodoro.Areas.api
 {
-    [AllowAnonymous]
+    
     public class LogInController : ApiController
     {
         private readonly ServicioLogIn _ServicioLogIn; // Inject Encriptacion service

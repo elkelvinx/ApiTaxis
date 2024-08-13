@@ -33,19 +33,21 @@ namespace TaxistTeodoro.Areas.api
             return response;
 
         }
-        public string Post(UserData obj)
+        [Authorize]
+        public string Post(settlement obj)
         {
-            var srv = new ServicioUser();
+            var srv = new ServicioSettlement();
             string respuesta = "ok";
             try
             {
-                respuesta = srv.Insertar(obj);
+                respuesta = srv.insertar(obj);
             }
             catch (Exception ex) { respuesta = ex.ToString(); }
 
 
             return respuesta;
         }
+        [Authorize]
         public string Put(settlement obj)
         {
             var srv = new ServicioSettlement();
@@ -57,6 +59,7 @@ namespace TaxistTeodoro.Areas.api
             catch (Exception ex) { res = ex.ToString(); }
             return res;
         }
+        [Authorize]
         public string Delete(int id)
         {
             var res = "ok";

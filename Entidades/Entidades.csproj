@@ -56,6 +56,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Admin.cs" />
+    <Compile Include="ChangeLog.cs" />
     <Compile Include="LogIn\UserPermissions.cs" />
     <Compile Include="Response\ApiResponse.cs" />
     <Compile Include="Arrays\Arrays.cs" />

@@ -1,4 +1,5 @@
-﻿using Entidades.LogIn;
+﻿using Entidades.Arrays;
+using Entidades.LogIn;
 using Entidades.Response;
 using Microsoft.IdentityModel.Tokens;
 using ServicioEncriptacion;
@@ -6,25 +7,16 @@ using System;
 using System.Configuration;
 using System.Data.SqlClient;
 using System.IdentityModel.Tokens.Jwt;
-using Microsoft.IdentityModel.Tokens.Configuration;
-using System.Net;
-using System.Net.Http;
 using System.Security.Claims;
 using System.Text;
-using Entidades.Arrays;
 
 namespace Servicios
 {
-    public interface IPrincipal
-    {
-
-    }
     public class ServicioLogIn
     {
         public AppDomainInitializer AppDomainInitializer { get; set; }
         private readonly Encriptacion _encriptacion;
         private UserData _userData;
-
         public ServicioLogIn()
         {
             _encriptacion = new Encriptacion();
@@ -45,9 +37,7 @@ namespace Servicios
                 }
                 catch (Exception ex)
                 {
-
-                    return new RespuestaJWT { ErrorMessage = "Error al intentar hacer el JWT, contacte con sistemas. "+ ex };
-
+                    return new RespuestaJWT { ErrorMessage = "Error al intentar hacer el JWT, contacte con sistemas. " + ex };
                 }
             }
             else
@@ -78,23 +68,24 @@ namespace Servicios
                         {
                             User user = new User
                             {
+                                id = reader.GetInt32(0),
                                 name = reader["name"].ToString(),
                                 email = reader["email"].ToString(),
                                 dateCreated = DateTime.Parse(reader["dateCreated"].ToString()),
-                                active= Boolean.Parse(reader["active"].ToString()),
-                                bloqued= Boolean.Parse(reader["bloqued"].ToString())
+                                active = Boolean.Parse(reader["active"].ToString()),
+                                bloqued = Boolean.Parse(reader["bloqued"].ToString())
                             };
                             UserPermissions permissions = new UserPermissions
                             {
                                 idRole = Int16.Parse(reader["idRole"].ToString()),
-                                driver= Convert.ToBoolean(reader["driver"]),
+                                driver = Convert.ToBoolean(reader["driver"]),
                                 admin = Convert.ToBoolean(reader["admin"]),
                                 permissionaire = Convert.ToBoolean(reader["permissionair"]),
                                 unit = Convert.ToBoolean(reader["unit"]),
                                 sinister = Convert.ToBoolean(reader["sinister"]),
                                 extraData = Convert.ToBoolean(reader["extraData"]),
                                 pdf = Convert.ToBoolean(reader["pdf"]),
-                                changeLog= Convert.ToBoolean(reader["changeLog"])
+                                changeLog = Convert.ToBoolean(reader["changeLog"])
                             };
                             reader.Close();
                             if (user.active == true)
@@ -104,15 +95,17 @@ namespace Servicios
                                 response.Success = true;
                                 return response;
                             }
-                            else {
+                            else
+                            {
                                 response.ErrorMessage = "El usuario actualmente esta desactivado, contacte con sistemas";
-                                return response; }
+                                return response;
+                            }
                         }
                     }
                 }
             }
             response.ErrorMessage = "Usuario o contraseña invalidos";
-                return response;
+            return response;
         }
         private AuthRequest EncriptData(AuthRequest Model)
         {
@@ -121,7 +114,8 @@ namespace Servicios
             return Model;
         }
         public string GetJWT(User user, UserPermissions perm)
-        {          
+        {
+            var roleName = GetRole(perm.idRole);
             var key = ConfigurationManager.AppSettings["Jwt:Key"];
             var issuer = ConfigurationManager.AppSettings["Jwt:Issuer"];
             var audience = ConfigurationManager.AppSettings["Jwt:Audience"];
@@ -130,8 +124,8 @@ namespace Servicios
             var claims = new[]
            {
                 new Claim(ClaimTypes.NameIdentifier, user.name),
-                new Claim(ClaimTypes.Email, user.email),
-                new Claim(ClaimTypes.Role, perm.idRole.ToString()),
+                new Claim("idUser",user.id.ToString()),
+                new Claim(ClaimTypes.Role,roleName),
                 new Claim("active", user.active.ToString()),
                 new Claim("bloqued", user.bloqued.ToString()),
                 new Claim("Driver",perm.driver.ToString()),
@@ -142,43 +136,31 @@ namespace Servicios
                 new Claim("ExtraData",perm.extraData.ToString()),
                 new Claim("ChangeLog", perm.changeLog.ToString()),
                 new Claim("PDF",perm.pdf.ToString()),
-                
+
             };
-            // Crear el token opcionA
-            
-                var claimsIdentity = new ClaimsIdentity(claims, "CustomAuthenticationClaim");
-               var tokenHandler = new JwtSecurityTokenHandler();
-               var jwtSecurityToken = tokenHandler.CreateJwtSecurityToken(
-                   audience: audience,
-                   issuer: issuer,
-                   subject: claimsIdentity,               
-                   notBefore: DateTime.UtcNow,
-                   expires: DateTime.UtcNow.AddMinutes(120),
-                   signingCredentials: credentials);
+            //Crear el token
+            var claimsIdentity = new ClaimsIdentity(claims, "CustomAuthenticationClaim");
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var jwtSecurityToken = tokenHandler.CreateJwtSecurityToken(
+                audience: audience,
+                issuer: issuer,
+                subject: claimsIdentity,
+                notBefore: DateTime.UtcNow,
+                expires: DateTime.UtcNow.AddMinutes(1900),
+                signingCredentials: credentials);
             var jwtTokenString = tokenHandler.WriteToken(jwtSecurityToken);
             return jwtTokenString;
-            // Crear el token opcionB
-            /*
-            var token = new JwtSecurityToken(
-                 issuer,
-                 audience,
-                 claims,
-                 //notBefore: DateTime.UtcNow,
-                 expires: DateTime.Now.AddMinutes(60),
-                 signingCredentials: credentials);
-
-             return new JwtSecurityTokenHandler().WriteToken(token); 
-            */
         }
         public String GetRole(int idUser)
         {
-            switch (idUser) {
+            switch (idUser)
+            {
                 case 1:
-                    return "Admin";
+                    return "admin";
                 case 2:
-                    return "Guest";
+                    return "guest";
                 case 3:
-                    return "User";                   
+                    return "user";
             }
             return "";
         }

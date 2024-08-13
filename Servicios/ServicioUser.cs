@@ -229,7 +229,7 @@ namespace Servicios
                         obj.User.password = _encriptacion.GetSHA256(obj.User.password);
                         cmdUserData.Parameters.AddWithValue("@password", obj.User.password);
                     }
-                    cmdUserData.ExecuteNonQuery();  
+                    cmdUserData.ExecuteNonQuery();
                     SqlCommand cmdUserPermissions = new SqlCommand("UPDATE userPermissions SET idRole=@idRole, " +
                         "driver=@driver, admin=@admin, permissionair=@permissionair, unit=@unit, " +
                         "sinister=@sinister, extraData=@extraData, changeLog=@changeLog, pdf=@pdf WHERE idUser=@idUser", con, transaction);
@@ -245,6 +245,8 @@ namespace Servicios
                     cmdUserPermissions.Parameters.AddWithValue("@pdf", obj.Permissions.pdf);
                     cmdUserPermissions.ExecuteNonQuery();
                     transaction.Commit();
+                    ServicioChangeLog.UpdateTriggerChangeLog("UserData", 2, cmdUserData);
+                    ServicioChangeLog.UpdateTriggerChangeLog("UserPermissions", 2, cmdUserPermissions);
                 }
                 catch (Exception ex)
                 {
