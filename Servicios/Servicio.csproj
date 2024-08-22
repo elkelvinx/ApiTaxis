@@ -203,8 +203,7 @@
     <Compile Include="LogIn\IUserService.cs" />
     <Compile Include="LogIn\ServicioLogIn.cs" />
     <Compile Include="Logs\ServicioErrorLogs.cs" />
-    <Compile Include="ServicioChangeLog.cs" />
-    <Compile Include="ServicioErrorLog.cs" />
+    <Compile Include="Logs\ServicioChangeLog.cs" />
     <Compile Include="ServicioUser.cs" />
     <Compile Include="Monolitico\ServicioArrayUD.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -56,13 +56,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Admin.cs" />
-    <Compile Include="ChangeLog.cs" />
+    <Compile Include="Logs\ChangeLog.cs" />
     <Compile Include="LogIn\UserPermissions.cs" />
+    <Compile Include="Logs\ErrorLog.cs" />
     <Compile Include="Response\ApiResponse.cs" />
     <Compile Include="Arrays\Arrays.cs" />
-    <Compile Include="cars\ModelsCar.cs" />
-    <Compile Include="cars\Brand.cs" />
-    <Compile Include="cars\Sinister.cs" />
+    <Compile Include="Cars\ModelsCar.cs" />
+    <Compile Include="Cars\Brand.cs" />
+    <Compile Include="Cars\Sinister.cs" />
     <Compile Include="LogIn\AuthRequest.cs" />
     <Compile Include="Response\Respuesta.cs" />
     <Compile Include="LogIn\User.cs" />
@@ -75,5 +76,6 @@
     <Compile Include="Unit.cs" />
     <Compile Include="Drivers\contactDriver.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

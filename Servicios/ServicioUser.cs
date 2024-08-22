@@ -3,7 +3,7 @@ using Entidades.LogIn;
 using ServicioEncriptacion;
 using System;
 using System.Data.SqlClient;
-using System.Transactions;
+using Servicios.Logs; 
 
 namespace Servicios
 {

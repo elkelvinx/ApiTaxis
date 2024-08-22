@@ -1,12 +1,32 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Data.SqlClient;
+using System.Runtime.Serialization;
 
 namespace Entidades.Logs
 {
-    internal class ErrorLog
+    [Serializable]
+    [DataContract]
+    public class ErrorLog
     {
+        [DataMember]
+        public int id { get; set; }
+        [DataMember]
+        public string UserName { get; set; }
+        [DataMember]
+        public int idUser { get; set; }
+        [DataMember]
+        public string nameTable { get; set; }
+        [DataMember]
+        public string MessageError { get; set; }
+        [DataMember]
+        public DateTime DateError { get; set; }
+        [DataMember]
+        public SqlCommand query { get; set; }
+        [DataMember]
+        public int DML { get; set;}
+
     }
+    public class listErrorLogs : List<ErrorLog> { }
+
 }

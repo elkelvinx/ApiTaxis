@@ -4,6 +4,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Servicios.Logs;
 using Entidades;
 
 namespace Servicios
@@ -60,13 +61,16 @@ namespace Servicios
             SqlConnection con = ServiciosBD.ObtenerConexion();
             SqlCommand cmd = new SqlCommand(cadena, con);
             cmd.Parameters.AddWithValue("@name", obj.name);            
-            ServicioChangeLog.UpdateTriggerChangeLog("Settlement", 1, cmd);
+             
             try { cmd.ExecuteNonQuery(); }
             catch (Exception ex) {
                 SqlConnection.ClearPool(con);
                 con.Close();
+                ServicioErrorLogs.RegisterErrorLog("Settlement",1,cmd,ex.Message);
                 respuesta = "Error, " + ex.Message.ToString(); 
+                return respuesta;
             }
+            ServicioChangeLog.UpdateTriggerChangeLog("Settlement", 1, cmd);
             SqlConnection.ClearPool(con);
             con.Close();
             return respuesta;
