@@ -59,6 +59,7 @@
     <Compile Include="Logs\ChangeLog.cs" />
     <Compile Include="LogIn\UserPermissions.cs" />
     <Compile Include="Logs\ErrorLog.cs" />
+    <Compile Include="Logs\historyLogIn.cs" />
     <Compile Include="Response\ApiResponse.cs" />
     <Compile Include="Arrays\Arrays.cs" />
     <Compile Include="Cars\ModelsCar.cs" />

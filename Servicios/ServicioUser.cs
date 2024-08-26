@@ -22,7 +22,7 @@ namespace Servicios
             {
                 using (SqlConnection con = ServiciosBD.ObtenerConexion())
                 {
-                    string cadena = "SELECT d.name, d.email, d.dateCreated, d.dateOut,d.active, " +
+                    string cadena = "SELECT d.name, d.email, d.dateCreated, d.dateOut,d.active,d.bloqued, " +
                                     "p.* FROM UsersData AS d " +
                                     "INNER JOIN UserPermissions AS p ON p.idUser = d.id";
                     using (SqlCommand command = new SqlCommand(cadena, con))
@@ -41,7 +41,8 @@ namespace Servicios
                                     dateCreated = Convert.ToDateTime(reader["dateCreated"]),
                                     //CORREGIR
                                     dateOut = reader["dateOut"] is DBNull ? DateTime.MinValue : Convert.ToDateTime(reader["dateOut"]),
-                                    active = bool.Parse(reader["active"].ToString())
+                                    active = bool.Parse(reader["active"].ToString()),
+                                    bloqued = bool.Parse(reader["bloqued"].ToString())
                                 },
                                 Permissions = new UserPermissions
                                 {

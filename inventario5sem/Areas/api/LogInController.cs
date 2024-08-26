@@ -7,6 +7,8 @@ using System.Net;
 using System.Web.Http;
 using System.IdentityModel.Tokens.Jwt;
 using System.Reflection;
+using Servicios.Logs;
+
 namespace TaxisTeodoro.Areas.api
 {
     
@@ -35,13 +37,19 @@ namespace TaxisTeodoro.Areas.api
                 return Content(HttpStatusCode.GatewayTimeout, "Hubo un error con la base de datos, acuda con sistemas. " + ex.Message) ;
             }
         }
-        public IHttpActionResult Post(UserData obj)
+        [Route("api/login")]
+        public IHttpActionResult Post([FromBody] dynamic data)
         {
+            string nameUser = data.nameUser;
             string respuesta = "ok";
             try
             {
-                var response = _ServicioUser.Insertar(obj);
-                return Ok(response + " " + obj);
+                var response = _ServicioLogIn.closeSession(nameUser);
+                if (response)
+                {
+                    return Ok(nameUser);
+                }                
+                else return BadRequest("Fallo algo internamente");
             }
             catch (Exception ex)
             {

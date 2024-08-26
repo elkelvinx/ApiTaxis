@@ -3,6 +3,7 @@ using Entidades.LogIn;
 using Entidades.Response;
 using Microsoft.IdentityModel.Tokens;
 using ServicioEncriptacion;
+using Servicios.Logs;
 using System;
 using System.Configuration;
 using System.Data.SqlClient;
@@ -22,6 +23,7 @@ namespace Servicios
             _encriptacion = new Encriptacion();
             _userData = new UserData();
         }
+
         public RespuestaJWT LogIn(AuthRequest Model)
         {
             Model = EncriptData(Model);
@@ -33,6 +35,7 @@ namespace Servicios
                     _userData = (UserData)Response.Data;
                     //Aqui se encargara de registrar el history logIn
                     var JWT = GetJWT(_userData.User, _userData.Permissions);
+                    ServicioHistoryLogIn.registerLogIn(JWT);
                     return new RespuestaJWT { Token = JWT };
                 }
                 catch (Exception ex)
@@ -134,7 +137,7 @@ namespace Servicios
                 new Claim("Unit",perm.unit.ToString()),
                 new Claim("Sinister",perm.sinister.ToString()),
                 new Claim("ExtraData",perm.extraData.ToString()),
-                new Claim("ChangeLog", perm.changeLog.ToString()),
+                new Claim("Logs", perm.changeLog.ToString()),
                 new Claim("PDF",perm.pdf.ToString()),
 
             };
@@ -163,6 +166,32 @@ namespace Servicios
                     return "user";
             }
             return "";
+        }
+        public bool closeSession(string nameUser)
+        {
+            bool response = false;
+            string cadena = "update historyLogIn set exits = @exits where userName = @userName and exits is null";
+            using (SqlConnection con = ServiciosBD.ObtenerConexion())
+            {
+                using (SqlCommand cmd = new SqlCommand(cadena, con))
+                {
+                    cmd.Parameters.AddWithValue("@exits", DateTime.Now);
+                    cmd.Parameters.AddWithValue("@userName", nameUser);
+                    try
+                    {
+                        //con.Open();
+                        int rowsAffected = cmd.ExecuteNonQuery();
+                        response = rowsAffected > 0;
+                    }
+                    catch (Exception e)
+                    {
+                        con.Close();
+                        ServicioErrorLogs.RegisterErrorLog("HistoryLogIn", 69, cmd, e.Message);
+                    }
+                    finally { con.Close(); }
+                }
+            }
+            return response;
         }
     }
 }

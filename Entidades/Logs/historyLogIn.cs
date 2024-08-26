@@ -4,12 +4,10 @@ using System.Runtime.Serialization;
 
 namespace Entidades.Logs
 {
+    [Serializable]
+    [DataContract]
     public class historyLogIn
     {
-        [Serializable]
-        [DataContract]
-        public class regtisterLogIn
-        {
             [DataMember]
             public int id { get; set; }
             [DataMember]
@@ -17,12 +15,11 @@ namespace Entidades.Logs
             [DataMember]
             public string userName { get; set; }
             [DataMember]
-            public int idRole { get; set; }
+            public string roleName { get; set; }
             [DataMember]
             public DateTime entry { get; set; }
             [DataMember]
             public DateTime exits { get; set; }
-        }
         public class listHistoryLog : List<historyLogIn> { }
     }
 }
