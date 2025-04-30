@@ -277,10 +277,12 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Areas\api\ImageController.cs" />
     <Compile Include="Areas\api\ModelController.cs" />
     <Compile Include="Areas\api\BrandController.cs" />
     <Compile Include="Areas\api\DataArrayController.cs" />
     <Compile Include="Areas\api\ContactDrvController.cs" />
+    <Compile Include="Areas\api\LogInfoController.cs" />
     <Compile Include="Areas\api\SinisterController.cs" />
     <Compile Include="Areas\api\LogInController.cs" />
     <Compile Include="Areas\api\TokenGenerator.cs" />

@@ -12,7 +12,7 @@ namespace Entidades.Logs
         [DataMember]
         public int id { get; set; }
         [DataMember]
-        public string UserName { get; set; }
+        public string userName { get; set; }
         [DataMember]
         public int idUser { get; set; }
         [DataMember]
@@ -20,9 +20,9 @@ namespace Entidades.Logs
         [DataMember]
         public string MessageError { get; set; }
         [DataMember]
-        public DateTime DateError { get; set; }
+        public DateTime? DateError { get; set; }
         [DataMember]
-        public SqlCommand query { get; set; }
+        public string query { get; set; }
         [DataMember]
         public int DML { get; set;}
 

@@ -17,9 +17,9 @@ namespace Entidades.Logs
             [DataMember]
             public string roleName { get; set; }
             [DataMember]
-            public DateTime entry { get; set; }
+            public DateTime? entry { get; set; }
             [DataMember]
-            public DateTime exits { get; set; }
+            public DateTime? exits { get; set; }
         public class listHistoryLog : List<historyLogIn> { }
     }
 }

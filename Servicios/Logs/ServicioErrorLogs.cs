@@ -1,5 +1,7 @@
-﻿using Entidades.Logs;
+﻿using Entidades.Arrays;
+using Entidades.Logs;
 using System;
+using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Security.Claims;
 using System.Threading;
@@ -18,7 +20,7 @@ namespace Servicios.Logs
             ClaimsPrincipal claimsPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
             if (claimsPrincipal != null)
             {
-                obj.UserName = claimsPrincipal.FindFirst(ClaimTypes.NameIdentifier).Value;
+                obj.userName = claimsPrincipal.FindFirst(ClaimTypes.NameIdentifier).Value;
                 obj.idUser = Int16.Parse(claimsPrincipal.FindFirst("idUser").Value);
             }
             //Obtencion query ejecutado y formateo
@@ -39,7 +41,7 @@ namespace Servicios.Logs
             {
                 using (SqlCommand cmd = new SqlCommand(cadena, con))
                 {
-                    cmd.Parameters.AddWithValue("@userName", obj.UserName);
+                    cmd.Parameters.AddWithValue("@userName", obj.userName);
                     cmd.Parameters.AddWithValue("@idUser", obj.idUser);
                     cmd.Parameters.AddWithValue("@nameTable", NameTable);
                     cmd.Parameters.AddWithValue("@dateError", DateTime.UtcNow);
@@ -57,5 +59,55 @@ namespace Servicios.Logs
 
             }
         }
+        public ApiResponse<listErrorLogs> GetAll()
+        {
+            var data = new ApiResponse<listErrorLogs>();
+            var list = new listErrorLogs();
+            string cadena = "SELECT * FROM errorLogs";
+            try
+            {
+                using (SqlConnection con = ServiciosBD.ObtenerConexion())
+                {
+                    //con.Open();
+                    using (var command = new SqlCommand(cadena, con))
+                    using (var reader = command.ExecuteReader())
+                    {
+                        int idOrdinal = reader.GetOrdinal("id");
+                        int userNameOrdinal = reader.GetOrdinal("userName");
+                        int idUserOrdinal = reader.GetOrdinal("idUser");
+                        int nameTableOrdinal = reader.GetOrdinal("nameTable");
+                        int messageErrorOrdinal = reader.GetOrdinal("messageError");
+                        int query = reader.GetOrdinal("query");
+                        int dateErrorOrdinal = reader.GetOrdinal("dateError");
+                        int DMLOrdinal = reader.GetOrdinal("DML");
+
+                        while (reader.Read())
+                        {
+                            var obj = new ErrorLog
+                            {
+                                id = reader.GetInt32(idOrdinal),
+                                idUser = reader.GetInt32(idUserOrdinal),
+                                userName= reader.GetString(userNameOrdinal),
+                                nameTable = reader.GetString(nameTableOrdinal),
+                                query = reader.GetString(query),
+                                DateError = reader.IsDBNull(dateErrorOrdinal) ? (DateTime?)null : reader.GetDateTime(dateErrorOrdinal),
+                                DML = reader.GetInt32(DMLOrdinal),
+                            };
+                            list.Add(obj);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                data.ErrorMessage = ex.Message;
+                data.Success = false;
+                return data;
+            }
+
+            data.Data = list;
+            data.Success = true;
+            return data;
+        }
     }
-}
+    }

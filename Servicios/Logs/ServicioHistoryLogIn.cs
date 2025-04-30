@@ -1,9 +1,11 @@
-﻿using Entidades.Logs;
+﻿using Entidades.Arrays;
+using Entidades.Logs;
 using System;
+using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
-using System.Security.Claims;
+using static Entidades.Logs.historyLogIn;
 
 namespace Servicios.Logs
 {
@@ -48,6 +50,12 @@ namespace Servicios.Logs
 
             }
         }
+        /*
+         * una segunda opcion es que si hay una session abierta 
+         * entonces la API hara uso de esa sesion para continuar funcionando
+         * por lo que no la cerrrara
+         * lo que haria que hayan menos entradas y salidas en la tabla
+         */
         public static bool verifySessionState(int idUser)
         {
             bool response = true;
@@ -78,5 +86,54 @@ namespace Servicios.Logs
             }
             return response;
         }
+        public ApiResponse<List<historyLogIn>> GetAll()
+        {
+            var data = new ApiResponse<List<historyLogIn>>();
+            var list = new List<historyLogIn>();
+            string cadena = "SELECT * FROM historyLogIn";
+
+            try
+            {
+                using (SqlConnection con = ServiciosBD.ObtenerConexion())
+                {
+                    //con.Open();
+                    using (var command = new SqlCommand(cadena, con))
+                    using (var reader = command.ExecuteReader())
+                    {
+                        int idOrdinal = reader.GetOrdinal("id");
+                        int idUserOrdinal = reader.GetOrdinal("idUser");
+                        int userNameOrdinal = reader.GetOrdinal("userName");
+                        int roleNameOrdinal = reader.GetOrdinal("roleName");
+                        int entryOrdinal = reader.GetOrdinal("entry");
+                        int exitsOrdinal = reader.GetOrdinal("exits");
+
+                        while (reader.Read())
+                        {
+                            var logInData = new historyLogIn
+                            {
+                                id = reader.GetInt32(idOrdinal),
+                                idUser = reader.GetInt32(idUserOrdinal),
+                                userName = reader.GetString(userNameOrdinal),
+                                roleName = reader.GetString(roleNameOrdinal),
+                                entry = reader.IsDBNull(entryOrdinal) ? (DateTime?)null : reader.GetDateTime(entryOrdinal),
+                                exits = reader.IsDBNull(exitsOrdinal) ? (DateTime?)null : reader.GetDateTime(exitsOrdinal)
+                            };
+                            list.Add(logInData);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                data.ErrorMessage = ex.Message;
+                data.Success = false;
+                return data;
+            }
+
+            data.Data = list;
+            data.Success = true;
+            return data;
+        }
+
     }
 }
