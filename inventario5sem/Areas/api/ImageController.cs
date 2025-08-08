@@ -13,6 +13,17 @@ using System.Web;
 
 namespace TaxisTeodoro.Areas.api
 {
+    /*
+     Para la API necesito al inicio traer datos por ejemplo el 
+        DocumentType
+        RelatedEntityId
+
+     para luego traerte a todos los Driver o permisionarios o la entidad seleccionada
+        Thing
+        
+    verificar que
+    el archivo no este vacio
+     */
 
     public class ImageController : ApiController
     {
@@ -23,6 +34,7 @@ namespace TaxisTeodoro.Areas.api
             _ServicioLogIn = new ServicioLogIn();
             _ServicioUser = new ServicioUser();
         }
+
         /*
         [HttpPost]
         [Route("guardarImagen")]

@@ -278,6 +278,7 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Areas\api\ImageController.cs" />
+    <Compile Include="Areas\api\HomeController .cs" />
     <Compile Include="Areas\api\ModelController.cs" />
     <Compile Include="Areas\api\BrandController.cs" />
     <Compile Include="Areas\api\DataArrayController.cs" />

@@ -22,9 +22,10 @@ namespace TaxisTeodoro.Areas.api
             _ServicioUser = new ServicioUser();
         }
         [Route("api/login/enter")]
+        [AllowAnonymous]
         public IHttpActionResult Post([FromBody] AuthRequest Model)
         {
-            //Model = _ServicioLogIn.DesEncript(Model);
+           // Model = _ServicioLogIn.DesEncript(Model);
             try
             {
                 var response = _ServicioLogIn.LogIn(Model);

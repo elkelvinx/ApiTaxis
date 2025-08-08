@@ -56,6 +56,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Admin.cs" />
+    <Compile Include="Home.cs" />
     <Compile Include="Logs\ChangeLog.cs" />
     <Compile Include="LogIn\UserPermissions.cs" />
     <Compile Include="Logs\ErrorLog.cs" />
