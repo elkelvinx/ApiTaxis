@@ -8,6 +8,7 @@ using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 using static Entidades.Logs.historyLogIn;
+using Entidades.Response;
 
 namespace Servicios.Logs
 {

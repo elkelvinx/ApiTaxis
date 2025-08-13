@@ -72,11 +72,11 @@
     <Compile Include="Response\UserResponse.cs" />
     <Compile Include="Street.cs" />
     <Compile Include="Settlement.cs" />
-    <Compile Include="Drivers\Driver.cs" />
+    <Compile Include="DriversCarpet\Driver.cs" />
     <Compile Include="Permission.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Unit.cs" />
-    <Compile Include="Drivers\contactDriver.cs" />
+    <Compile Include="DriversCarpet\contactDriver.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

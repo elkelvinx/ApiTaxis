@@ -1,7 +1,7 @@
-﻿using Entidades;
-using Entidades.Arrays;
+﻿using Entidades.DriversCarpet;
 using Entidades.Response;
-using Servicios;
+using Servicios.DriverServices;
+using Servicios.Logs;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -17,9 +17,11 @@ namespace TaxistTeodoro.Areas.api
     public class DriverController : ApiController
     {
         private readonly ServicioDriver _servicioDriver;
+        private readonly ServicioStatsDriver _servicioStatsDriver;
         public DriverController()
         {
             _servicioDriver = new ServicioDriver();
+            _servicioStatsDriver = new ServicioStatsDriver();
         }
         // GET: api/Cliente
 
@@ -48,6 +50,8 @@ namespace TaxistTeodoro.Areas.api
                 string result = _servicioDriver.Insertar(obj);
                 response.Success = true;
                 response.Data = result;
+                //metodo para actualizar la tabla contadora total de drivers
+                _servicioStatsDriver.ActualizarDriversStatusMensual(obj.hireDate);
                 return Content(HttpStatusCode.Created, obj);
 
             }
@@ -97,6 +101,12 @@ namespace TaxistTeodoro.Areas.api
             {
                 srv.Eliminar(id);
                 response.Success = true;
+                var hireDate = _servicioDriver.ObtenerHireDate(id);
+                if (hireDate.HasValue)
+                {
+                    _servicioStatsDriver.DisminuirDriversMonthlyStats(hireDate.Value);
+                }
+
                 return Ok(response);
             }
 
@@ -108,6 +118,22 @@ namespace TaxistTeodoro.Areas.api
             {
                 return InternalServerError(ex);
             }
+
+        }
+        //este no sirve ya al parecer
+        public void reduceCountTableDriversTotal(Driver obj)
+        {
+            try
+            {
+                if (obj != null)
+                    _servicioStatsDriver.DisminuirDriversMonthlyStats(obj.hireDate);
+                else throw new Exception();
+            }
+            catch (Exception ex)
+            {
+                ServicioErrorLogs.RegisterErrorLogSinCMD("Settlement", 1, "UPDATE DriversMonthlyStats SET totalDrivers = totalDrivers - 1 WHERE (ingressYear * 100 + ingressMonth) = "+obj.hireDate + " AND totalDrivers > 0;"+ex, "Se borro un driver y al momento de actualizar la tabla de conteo totales de drivers fallo");
+            }
+
 
         }
     }

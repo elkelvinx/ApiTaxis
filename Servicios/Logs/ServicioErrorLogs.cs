@@ -1,5 +1,6 @@
 ﻿using Entidades.Arrays;
 using Entidades.Logs;
+using Entidades.Response;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -10,6 +11,7 @@ namespace Servicios.Logs
 {
     public class ServicioErrorLogs
     {
+        //hacer otro metodo que no pida una query, solo una descripcion detallada
         public static string RegisterErrorLog(string NameTable, int DML, SqlCommand Query, string MessageError)
         {
             var obj = new ErrorLog();
@@ -47,6 +49,43 @@ namespace Servicios.Logs
                     cmd.Parameters.AddWithValue("@dateError", DateTime.UtcNow);
                     cmd.Parameters.AddWithValue("@DML", DML);
                     cmd.Parameters.AddWithValue("@query", queryCompleto);
+                    cmd.Parameters.AddWithValue("@messageError", MessageError);
+                    try
+                    {
+                        cmd.ExecuteNonQuery();
+                        con.Close();
+                    }
+                    catch (Exception e) { return response = e.Message; }
+                    return response;
+                }
+
+            }
+        }
+        //metodo para poder ingresar cuando falla util para tablas de conteos como la de drivers usar pocas veces para no perder formato
+        public static string RegisterErrorLogSinCMD(string NameTable, int DML, string Query, string MessageError)
+        {
+            var obj = new ErrorLog();
+            var response = "ok";
+            string cadena = "insert into errorLogs (userName,idUser,nameTable,messageError,dateError,query,DML) Values (@userName,@idUser,@nameTable," +
+                "@messageError,@dateError,@query,@DML)";
+            //Obtencion de los claims necesarios
+            ClaimsPrincipal claimsPrincipal = Thread.CurrentPrincipal as ClaimsPrincipal;
+            if (claimsPrincipal != null)
+            {
+                obj.userName = claimsPrincipal.FindFirst(ClaimTypes.NameIdentifier).Value;
+                obj.idUser = Int16.Parse(claimsPrincipal.FindFirst("idUser").Value);
+            }
+         
+            using (SqlConnection con = ServiciosBD.ObtenerConexion())
+            {
+                using (SqlCommand cmd = new SqlCommand(cadena, con))
+                {
+                    cmd.Parameters.AddWithValue("@userName", obj.userName);
+                    cmd.Parameters.AddWithValue("@idUser", obj.idUser);
+                    cmd.Parameters.AddWithValue("@nameTable", NameTable);
+                    cmd.Parameters.AddWithValue("@dateError", DateTime.UtcNow);
+                    cmd.Parameters.AddWithValue("@DML", DML);
+                    cmd.Parameters.AddWithValue("@query", Query);
                     cmd.Parameters.AddWithValue("@messageError", MessageError);
                     try
                     {

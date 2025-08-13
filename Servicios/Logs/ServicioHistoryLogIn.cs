@@ -1,5 +1,6 @@
 ﻿using Entidades.Arrays;
 using Entidades.Logs;
+using Entidades.Response;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;

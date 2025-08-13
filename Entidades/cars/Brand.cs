@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 
-namespace Entidades.cars
+namespace Entidades.Cars
 {
     [Serializable]
     [DataContract]

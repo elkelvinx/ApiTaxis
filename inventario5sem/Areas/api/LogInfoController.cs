@@ -2,6 +2,7 @@
 using Entidades.Arrays;
 using Entidades.LogIn;
 using Entidades.Logs;
+using Entidades.Response;
 using Servicios;
 using Servicios.Logs;
 using System;

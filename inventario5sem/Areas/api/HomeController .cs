@@ -48,15 +48,15 @@ namespace TaxisTeodoro.Areas.api
                 return InternalServerError(ex);
             }
         }
-        [HttpGet]
+        [HttpPost]
         [Route("DriverRange")]
         [AllowAnonymous]
-        public IHttpActionResult GetDriversRisePerMonth(DateTime? startMonthRange = null, DateTime? endMonthRange = null)
+        public IHttpActionResult GetDriversRisePerMonth([FromBody] DateRangeDto dateRange)
         {
             var totalDrivers = new listHomeDriversRise();
             try
             {
-                totalDrivers = _servicioHome.homeDriversRises(startMonthRange,endMonthRange);
+                totalDrivers = _servicioHome.homeDriversRises(dateRange.StartDate, dateRange.EndDate);
                 return Content(HttpStatusCode.OK, totalDrivers);
             }
             catch (Exception ex)

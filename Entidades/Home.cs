@@ -19,5 +19,9 @@ namespace Entidades
         public int totalDrivers { get; set; }
     }
     public class listHomeDriversRise : List<HomeDriversRise> { }
-
+    public class DateRangeDto
+    {
+        public DateTime? StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
+    }
 }
