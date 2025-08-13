@@ -199,16 +199,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DriverServices\ServicioStatsDriver.cs" />
     <Compile Include="Encription\ServicioEncriptacion.cs" />
     <Compile Include="LogIn\IUserService.cs" />
     <Compile Include="LogIn\ServicioLogIn.cs" />
+    <Compile Include="Logs\ServicioErrorLogs.cs" />
+    <Compile Include="Logs\ServicioChangeLog.cs" />
+    <Compile Include="Logs\ServicioHistoryLogIn.cs" />
+    <Compile Include="ServicioHome.cs" />
     <Compile Include="ServicioUser.cs" />
     <Compile Include="Monolitico\ServicioArrayUD.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Monolitico\ServicioRelation.cs" />
     <Compile Include="Monolitico\ServicioArrayCR.cs" />
     <Compile Include="ServicioAdmin.cs" />
-    <Compile Include="ServicioDriver.cs" />
+    <Compile Include="DriverServices\ServicioDriver.cs" />
     <Compile Include="ServicioPermission.cs" />
     <Compile Include="ServiciosBD.cs" />
     <Compile Include="Unit\ServicioCar.cs" />

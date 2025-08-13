@@ -1,51 +1,64 @@
-﻿using Entidades.LogIn;
+﻿using Entidades.Arrays;
+using Entidades.LogIn;
 using Entidades.Response;
 using Microsoft.IdentityModel.Tokens;
 using ServicioEncriptacion;
+using Servicios.Logs;
 using System;
 using System.Configuration;
 using System.Data.SqlClient;
 using System.IdentityModel.Tokens.Jwt;
-using Microsoft.IdentityModel.Tokens.Configuration;
-using System.Net;
-using System.Net.Http;
 using System.Security.Claims;
 using System.Text;
 
 namespace Servicios
 {
-
     public class ServicioLogIn
     {
         public AppDomainInitializer AppDomainInitializer { get; set; }
         private readonly Encriptacion _encriptacion;
         private UserData _userData;
-
         public ServicioLogIn()
         {
             _encriptacion = new Encriptacion();
             _userData = new UserData();
         }
+
         public RespuestaJWT LogIn(AuthRequest Model)
         {
             Model = EncriptData(Model);
             var Response = ValidationUser(Model);
-            if (Response.IsSuccess == true)
+            if (Response.Success == true)
             {
-                _userData = (UserData)Response.Data;
-                var JWT = GetJWT(_userData.User, _userData.Permissions);
-                return new RespuestaJWT { Token = JWT };
+                try
+                {
+                    _userData = (UserData)Response.Data;
+                    //Aqui se encargara de registrar el history logIn
+                    var JWT = GetJWT(_userData.User, _userData.Permissions);
+                    ServicioHistoryLogIn.registerLogIn(JWT);
+                    return new RespuestaJWT { Token = JWT };
+                }
+                catch (Exception ex)
+                {
+                    return new RespuestaJWT { ErrorMessage = "Error al intentar hacer el JWT, contacte con sistemas. " + ex };
+                }
             }
             else
-                //return new RespuestaJWT { ErrorMessage = "Nombre de usuario Invalido" };
-                return null;
+                return new RespuestaJWT { ErrorMessage = Response.ErrorMessage };
         }
-        private RespuestaObj ValidationUser(AuthRequest Model)
+        private ApiResponse<UserData> ValidationUser(AuthRequest Model)
         {
             var query = "SELECT d.*, p.* FROM usersData AS d " +
                         "INNER JOIN userPermissions AS p ON d.id = p.idUser " +
-                        "WHERE d.name = @name AND d.password = @password";
-
+                        "WHERE d.name = @name AND d.password = @password ";
+            var response = new ApiResponse<UserData>
+            {
+                Data = new UserData
+                {
+                    User = new User(),
+                    Permissions = new UserPermissions()
+                }
+            };
             using (SqlConnection con = ServiciosBD.ObtenerConexion())
             {
                 using (SqlCommand cmd = new SqlCommand(query, con))
@@ -58,34 +71,44 @@ namespace Servicios
                         {
                             User user = new User
                             {
+                                id = reader.GetInt32(0),
                                 name = reader["name"].ToString(),
                                 email = reader["email"].ToString(),
                                 dateCreated = DateTime.Parse(reader["dateCreated"].ToString()),
-                                active= Boolean.Parse(reader["active"].ToString()),
+                                active = Boolean.Parse(reader["active"].ToString()),
+                                bloqued = Boolean.Parse(reader["bloqued"].ToString())
                             };
                             UserPermissions permissions = new UserPermissions
                             {
                                 idRole = Int16.Parse(reader["idRole"].ToString()),
-                                driver= Convert.ToBoolean(reader["driver"]),
+                                driver = Convert.ToBoolean(reader["driver"]),
                                 admin = Convert.ToBoolean(reader["admin"]),
                                 permissionaire = Convert.ToBoolean(reader["permissionair"]),
                                 unit = Convert.ToBoolean(reader["unit"]),
                                 sinister = Convert.ToBoolean(reader["sinister"]),
                                 extraData = Convert.ToBoolean(reader["extraData"]),
-                                pdf = Convert.ToBoolean(reader["pdf"])
+                                pdf = Convert.ToBoolean(reader["pdf"]),
+                                changeLog = Convert.ToBoolean(reader["changeLog"])
                             };
                             reader.Close();
                             if (user.active == true)
-                                return new RespuestaObj
-                                {
-                                    Data = new UserData { User = user, Permissions = permissions }
-                                };
-                            else return new RespuestaObj { ErrorMessage = "El usuario actualmente esta desactivado, contacte con sistemas" };
+                            {
+                                response.Data.User = user;
+                                response.Data.Permissions = permissions;
+                                response.Success = true;
+                                return response;
+                            }
+                            else
+                            {
+                                response.ErrorMessage = "El usuario actualmente esta desactivado, contacte con sistemas";
+                                return response;
+                            }
                         }
                     }
                 }
             }
-            return new RespuestaObj { ErrorMessage = "Fallo en el proceso" };
+            response.ErrorMessage = "Usuario o contraseña invalidos";
+            return response;
         }
         private AuthRequest EncriptData(AuthRequest Model)
         {
@@ -95,7 +118,7 @@ namespace Servicios
         }
         public string GetJWT(User user, UserPermissions perm)
         {
-          
+            var roleName = GetRole(perm.idRole);
             var key = ConfigurationManager.AppSettings["Jwt:Key"];
             var issuer = ConfigurationManager.AppSettings["Jwt:Issuer"];
             var audience = ConfigurationManager.AppSettings["Jwt:Audience"];
@@ -104,39 +127,71 @@ namespace Servicios
             var claims = new[]
            {
                 new Claim(ClaimTypes.NameIdentifier, user.name),
-                new Claim(ClaimTypes.Email, user.email),
-                new Claim(ClaimTypes.Role, perm.idRole.ToString()),
+                new Claim("idUser",user.id.ToString()),
+                new Claim(ClaimTypes.Role,roleName),
+                new Claim("active", user.active.ToString()),
+                new Claim("bloqued", user.bloqued.ToString()),
                 new Claim("Driver",perm.driver.ToString()),
                 new Claim("Admin",perm.admin.ToString()),
                 new Claim("Permissionaire",perm.permissionaire.ToString()),
                 new Claim("Unit",perm.unit.ToString()),
                 new Claim("Sinister",perm.sinister.ToString()),
                 new Claim("ExtraData",perm.extraData.ToString()),
+                new Claim("Logs", perm.changeLog.ToString()),
                 new Claim("PDF",perm.pdf.ToString()),
-                
+
             };
-
-            // Crear el token            
-              var token = new JwtSecurityToken(
-                 issuer,
-                 audience,
-                 claims,
-                 expires: DateTime.Now.AddMinutes(60),
-                 signingCredentials: credentials);
-
-             return new JwtSecurityTokenHandler().WriteToken(token); 
+            //Crear el token
+            var claimsIdentity = new ClaimsIdentity(claims, "CustomAuthenticationClaim");
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var jwtSecurityToken = tokenHandler.CreateJwtSecurityToken(
+                audience: audience,
+                issuer: issuer,
+                subject: claimsIdentity,
+                notBefore: DateTime.UtcNow,
+                expires: DateTime.UtcNow.AddMinutes(1900),
+                signingCredentials: credentials);
+            var jwtTokenString = tokenHandler.WriteToken(jwtSecurityToken);
+            return jwtTokenString;
         }
         public String GetRole(int idUser)
         {
-            switch (idUser) {
+            switch (idUser)
+            {
                 case 1:
-                    return "Admin";
+                    return "admin";
                 case 2:
-                    return "Guest";
+                    return "guest";
                 case 3:
-                    return "User";                   
+                    return "user";
             }
             return "";
+        }
+        public bool closeSession(string nameUser)
+        {
+            bool response = false;
+            string cadena = "update historyLogIn set exits = @exits where userName = @userName and exits is null";
+            using (SqlConnection con = ServiciosBD.ObtenerConexion())
+            {
+                using (SqlCommand cmd = new SqlCommand(cadena, con))
+                {
+                    cmd.Parameters.AddWithValue("@exits", DateTime.Now);
+                    cmd.Parameters.AddWithValue("@userName", nameUser);
+                    try
+                    {
+                        //con.Open();
+                        int rowsAffected = cmd.ExecuteNonQuery();
+                        response = rowsAffected > 0;
+                    }
+                    catch (Exception e)
+                    {
+                        con.Close();
+                        ServicioErrorLogs.RegisterErrorLog("HistoryLogIn", 69, cmd, e.Message);
+                    }
+                    finally { con.Close(); }
+                }
+            }
+            return response;
         }
     }
 }

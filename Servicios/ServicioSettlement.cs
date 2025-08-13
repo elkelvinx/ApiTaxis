@@ -4,12 +4,19 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Servicios.Logs;
 using Entidades;
 
 namespace Servicios
 {
     public class ServicioSettlement
     {
+        /*
+           private readonly ServicioChangeLog servicioChangeLog;
+          public ServicioSettlement() { 
+          servicioChangeLog = new ServicioChangeLog();
+          }
+         */
         public listSettle consultarColonias()
         {
             string consulta = "select * from settlements order by name ASC";
@@ -47,19 +54,23 @@ namespace Servicios
             return list;
         }
         public string insertar(settlement obj)
-        {
+        {          
             string respuesta = "ok";
             string cadena = "insert into settlements (name)" +
                 " Values (@name)";
             SqlConnection con = ServiciosBD.ObtenerConexion();
             SqlCommand cmd = new SqlCommand(cadena, con);
-            cmd.Parameters.AddWithValue("@name", obj.name);
+            cmd.Parameters.AddWithValue("@name", obj.name);            
+             
             try { cmd.ExecuteNonQuery(); }
             catch (Exception ex) {
                 SqlConnection.ClearPool(con);
                 con.Close();
+                ServicioErrorLogs.RegisterErrorLog("Settlement",1,cmd,ex.Message);
                 respuesta = "Error, " + ex.Message.ToString(); 
+                return respuesta;
             }
+            ServicioChangeLog.UpdateTriggerChangeLog("Settlement", 1, cmd);
             SqlConnection.ClearPool(con);
             con.Close();
             return respuesta;

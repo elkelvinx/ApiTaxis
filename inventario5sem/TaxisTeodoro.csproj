@@ -277,12 +277,17 @@
     <Compile Include="App_Start\FilterConfig.cs" />
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Areas\api\ImageController.cs" />
+    <Compile Include="Areas\api\HomeController .cs" />
     <Compile Include="Areas\api\ModelController.cs" />
     <Compile Include="Areas\api\BrandController.cs" />
     <Compile Include="Areas\api\DataArrayController.cs" />
     <Compile Include="Areas\api\ContactDrvController.cs" />
+    <Compile Include="Areas\api\LogInfoController.cs" />
     <Compile Include="Areas\api\SinisterController.cs" />
     <Compile Include="Areas\api\LogInController.cs" />
+    <Compile Include="Areas\api\TokenGenerator.cs" />
+    <Compile Include="Areas\api\TokenValidationHandler.cs" />
     <Compile Include="Areas\api\UserController.cs" />
     <Compile Include="Areas\api\UnitController.cs" />
     <Compile Include="Areas\api\StreetController.cs" />
@@ -428,9 +433,9 @@
       <Project>{8e88078d-692e-4bf9-b246-cfc2640f9d9a}</Project>
       <Name>Entidades</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Servicios\Servicio.csproj">
+    <ProjectReference Include="..\Servicios\Servicios.csproj">
       <Project>{e85e6d92-7503-43bf-9920-c403a37754b5}</Project>
-      <Name>Servicio</Name>
+      <Name>Servicios</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>

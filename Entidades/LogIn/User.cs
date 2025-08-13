@@ -26,6 +26,8 @@ namespace Entidades.LogIn
         public DateTime dateOut { get; set; }
         [DataMember]
         public bool active {  get; set; }
+        [DataMember]
+        public bool bloqued {  get; set; }
 
     }
     public class UserData

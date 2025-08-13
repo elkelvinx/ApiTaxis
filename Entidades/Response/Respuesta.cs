@@ -20,4 +20,10 @@ namespace Entidades.Response
         public string ErrorMessage { get; set; }
         public string Token { get; set; }
     }
+    public class ResponsGeneric<T>
+    {
+        public bool IsSuccess => Data != null && string.IsNullOrEmpty(ErrorMessage);
+        public string ErrorMessage { get; set; }
+        public T Data { get; set; }
+    }
 }

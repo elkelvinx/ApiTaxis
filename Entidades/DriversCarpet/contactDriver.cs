@@ -5,7 +5,7 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Entidades.Drivers
+namespace Entidades.DriversCarpet
 {
     [Serializable]
     [DataContract]

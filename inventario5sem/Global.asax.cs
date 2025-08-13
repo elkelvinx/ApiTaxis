@@ -1,4 +1,5 @@
 //using Microsoft.IdentityModel.Tokens;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -20,42 +21,19 @@ namespace inventario5sem
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
-        }
-        /*
-          private void ConfigureAuth()
-         {
-             var issuer = ConfigurationManager.AppSettings["Jwt:Issuer"];
-             var audience = ConfigurationManager.AppSettings["Jwt:Audience"];
-             var secret = ConfigurationManager.AppSettings["Jwt:Key"];
-
-             var symmetricKey = Convert.FromBase64String(secret);
-             var validationParameters = new TokenValidationParameters
-             {
-                 ValidateIssuer = true,
-                 ValidateAudience = true,
-                 ValidateIssuerSigningKey = true,
-                 ValidIssuer = issuer,
-                 ValidAudience = audience,
-                 IssuerSigningKey = new SymmetricSecurityKey(symmetricKey)
-             };
-
-             // Configura la autenticación JWT aquí...
-         }
-         */
+        }        
         private void EnableCrossDmainAjaxCall()
         {
             //HttpContext.Current.Response.AddHeader("Access-Control-Allow-Origin",
             //              "http://localhost:5187");
             
-            HttpContext.Current.Response.AddHeader("Access-Control-Allow-Origin",
-                          "*");
-
+            HttpContext.Current.Response.AddHeader("Access-Control-Allow-Origin","*");
             if (HttpContext.Current.Request.HttpMethod == "OPTIONS")
             {
                 HttpContext.Current.Response.AddHeader("Access-Control-Allow-Methods",
                               "GET, POST, PUT, DELETE");
                 HttpContext.Current.Response.AddHeader("Access-Control-Allow-Headers",
-                              "X-Apikey, Content-Type, Accept");
+                              "X-Apikey, Content-Type, Accept, Authorization, Range");
                 HttpContext.Current.Response.AddHeader("Access-Control-Max-Age",
                               "1728000");
                 HttpContext.Current.Response.End();

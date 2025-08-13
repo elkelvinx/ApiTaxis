@@ -1,4 +1,6 @@
 ﻿using Entidades;
+using Entidades.DriversCarpet;
+using Servicios;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -8,7 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Servicios
+namespace Servicios.DriverServices
 {
     public class ServicioDriver
     {
@@ -57,7 +59,7 @@ namespace Servicios
                 obj.adminName = reader["adminName"].ToString();
                 obj.statusS = reader["statusS"].ToString();
                 list.Add(obj);
-                
+
             }
             SqlConnection.ClearPool(con);
             con.Close();
@@ -195,11 +197,9 @@ namespace Servicios
             cmd.Parameters.AddWithValue("@licenseEx", obj.licenseEx);
             cmd.Parameters.AddWithValue("@ingressPay", obj.ingressPay);
             cmd.Parameters.AddWithValue("@status", obj.status);
-            cmd.ExecuteNonQuery();
             /*
                try { cmd.ExecuteNonQuery(); }
             catch (Exception ex) { respuesta = "Error, " + ex.Message.ToString(); }*/
-            con.Close();
             try
             {
                 cmd.ExecuteNonQuery();
@@ -263,6 +263,19 @@ namespace Servicios
             con.Close();
             return respuesta;
         }
+        public DateTime? ObtenerHireDate(int driverId)
+        {
+            string query = "SELECT hireDate FROM drivers WHERE idDriver = @id";
+            using (SqlConnection con = ServiciosBD.ObtenerConexion())
+            using (SqlCommand cmd = new SqlCommand(query, con))
+            {
+                cmd.Parameters.AddWithValue("@id", driverId);
+                object result = cmd.ExecuteScalar();
+                return result != DBNull.Value ? (DateTime?)result : null;
+            }
+        }
+
+
     }
 
 }
