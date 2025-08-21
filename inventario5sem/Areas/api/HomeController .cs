@@ -1,7 +1,9 @@
 ﻿using Entidades;
 using Servicios;
 using System;
+using System.Data.SqlClient;
 using System.Net;
+using System.Runtime.Caching;
 using System.Web.Http;
 
 namespace TaxisTeodoro.Areas.api
@@ -10,54 +12,90 @@ namespace TaxisTeodoro.Areas.api
     public class HomeController : ApiController
     {
         private readonly ServicioHome _servicioHome;
+        private static readonly MemoryCache _cache = MemoryCache.Default;
         public HomeController()
         {
             _servicioHome = new ServicioHome();
         }
-        // Total de conductores registrados
+        // 1) Total de conductores registrados
         [HttpGet]
-        [Route("driversCount")]
+        [Route("driversKpi")]
         [AllowAnonymous]
         public IHttpActionResult GetDriversCount()
         {
-            int totalDrivers = 0;
             try
             {
-                totalDrivers = _servicioHome.GetDriversCount();
-                return Content(HttpStatusCode.Created, totalDrivers);
+                var totalDrivers = _servicioHome.CalculateCurrentDriversKpi();
+                return Ok(totalDrivers);
             }
             catch (Exception ex)
             {
                 return InternalServerError(ex);
             }
         }
-        public IHttpActionResult GetDriversRisePerMonth([FromBody] DateRangeDto dateRange)
-        {
-            var totalDrivers = new listHomeDriversRise();
-            try
-            {
-                totalDrivers = _servicioHome.homeDriversRises(dateRange.StartDate, dateRange.EndDate);
-                return Content(HttpStatusCode.OK, totalDrivers);
-            }
-            catch (Exception ex)
-            {
-                return InternalServerError(ex);
-            }
-        }
-
-        [HttpPost]
-        [Route("DriverRange")]
-        //Siniestros que sucedieron en el mes actual
+        // 2) KPI Siniestros
         [HttpGet]
-        [Route("SinisterMonthly")]
-        [AllowAnonymous]
-        public IHttpActionResult GetSinistersPerMoth()
+        [Route("sinistersKpi")]
+        public IHttpActionResult GetSinistersKpi()
         {
-            int totalSinisters = 0;
             try
             {
-                totalSinisters = _servicioHome.GetSinistersThisMonth();
-                return Content(HttpStatusCode.Created, totalSinisters);
+                var totalSinister = _servicioHome.CalculateCurrentSinistersKpi();
+                return Ok(totalSinister);
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+        // 3) Serie Conductores por rango (para gráfica)
+        [HttpPost]
+        [Route("driversRange")]
+        public IHttpActionResult GetDriversRange([FromBody] DateRangeDto dates)
+        {
+            string key = $"driversSeries-{dates?.StartDate:yyyyMMdd}-{dates?.EndDate:yyyyMMdd}";
+
+            if (_cache.Contains(key))
+                return Ok(_cache.Get(key));
+            try
+            {
+                var list = _servicioHome.GetDriversSeries(dates?.StartDate, dates?.EndDate);
+                _cache.Set(key, list, DateTimeOffset.Now.AddMinutes(0.5));
+                return Ok(list);
+            }
+            catch (SqlException ex)
+            {
+                // errores de base de datos
+                return Content(HttpStatusCode.ServiceUnavailable,
+                    $"Error al acceder a la BD: {ex.Message}");
+            }
+            catch (ArgumentException ex)
+            {
+                // errores de parámetros
+                return BadRequest($"Datos inválidos: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                // error genérico
+                return InternalServerError(new Exception("Ocurrió un error inesperado, intente más tarde."));
+            }
+        }
+        // 4) Serie Siniestros por rango (para gráfica)
+        [HttpPost]
+        [Route("sinistersRange")]
+        [AllowAnonymous]
+        public IHttpActionResult GetSinistersRange([FromBody] DateRangeDto dates)
+        {
+            string key = $"sinisterSeries-{dates?.StartDate:yyyyMMdd}-{dates?.EndDate:yyyyMMdd}";
+
+            if (_cache.Contains(key))
+                return Ok(_cache.Get(key));
+
+            try
+            {
+                var list = _servicioHome.GetSinistersSeries(dates?.StartDate, dates?.EndDate);
+                _cache.Set(key, list, DateTimeOffset.Now.AddMinutes(0.5));
+                return Ok(list);
             }
             catch (Exception ex)
             {
@@ -65,4 +103,5 @@ namespace TaxisTeodoro.Areas.api
             }
         }
     }
+
 }
