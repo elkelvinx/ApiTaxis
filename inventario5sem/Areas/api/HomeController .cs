@@ -31,6 +31,22 @@ namespace TaxisTeodoro.Areas.api
                 return InternalServerError(ex);
             }
         }
+        public IHttpActionResult GetDriversRisePerMonth([FromBody] DateRangeDto dateRange)
+        {
+            var totalDrivers = new listHomeDriversRise();
+            try
+            {
+                totalDrivers = _servicioHome.homeDriversRises(dateRange.StartDate, dateRange.EndDate);
+                return Content(HttpStatusCode.OK, totalDrivers);
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+
+        [HttpPost]
+        [Route("DriverRange")]
         //Siniestros que sucedieron en el mes actual
         [HttpGet]
         [Route("SinisterMonthly")]
@@ -48,22 +64,5 @@ namespace TaxisTeodoro.Areas.api
                 return InternalServerError(ex);
             }
         }
-        [HttpPost]
-        [Route("DriverRange")]
-        [AllowAnonymous]
-        public IHttpActionResult GetDriversRisePerMonth([FromBody] DateRangeDto dateRange)
-        {
-            var totalDrivers = new listHomeDriversRise();
-            try
-            {
-                totalDrivers = _servicioHome.homeDriversRises(dateRange.StartDate, dateRange.EndDate);
-                return Content(HttpStatusCode.OK, totalDrivers);
-            }
-            catch (Exception ex)
-            {
-                return InternalServerError(ex);
-            }
-        }
-
     }
 }
