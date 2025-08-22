@@ -62,5 +62,9 @@ jobs:
         with:
           app-name: 'ApiTaxi'
           slot-name: 'Production'
-          package: .
+          package: '${{ github.workspace }}\\published'
+
+      
+       
+
           
