@@ -52,9 +52,9 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_A351BE12D0404F56A6D341D21B323B98 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_4D8EF9D5269E4D93B9D691BEE860EFD4 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_7E09479D9B344AFDA89E167F60A49AF8 }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_F95E2D57B7A6444693575891BB22BFDF }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_3F965686D6E6473EB8FD2D8E7E53ADB7 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_060B80BB58684BE0924145B7E49D74B6 }}
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
@@ -62,9 +62,5 @@ jobs:
         with:
           app-name: 'ApiTaxi'
           slot-name: 'Production'
-          package: '${{ github.workspace }}\\published'
-
-      
-       
-
+          package: .
           
