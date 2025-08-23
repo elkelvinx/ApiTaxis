@@ -27,7 +27,7 @@ jobs:
         run: nuget restore TaxisTeodoro.sln
    # Publica a una carpeta
       - name: Publish to folder
-        run: msbuild TaxisTeodoro/TaxisTeodoro.csproj /p:Configuration=Release /p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageLocation="${{ github.workspace }}/published"
+        run: msbuild inventario5sem/TaxisTeodoro.csproj /p:Configuration=Release /p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageLocation="${{ github.workspace }}/published"
 
 
 
@@ -83,6 +83,7 @@ jobs:
           package: ${{ github.workspace }}/package.zip  # y aquí coincide
 
           
+
 
 
 
