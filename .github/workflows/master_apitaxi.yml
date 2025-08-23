@@ -28,7 +28,11 @@ jobs:
 
       # Publica a una carpeta física
       - name: Publish to folder
-        run: msbuild inventario5sem\TaxisTeodoro.csproj /p:Configuration=Release /p:DeployOnBuild=true /p:WebPublishMethod=FileSystem /p:DeleteExistingFiles=true /p:publishUrl="${{ github.workspace }}\published"
+        run: msbuild inventario5sem\TaxisTeodoro.csproj /p:Configuration=Release /p:DeployOnBuild=true /p:WebPublishMethod=FileSystem /p:DeleteExistingFiles=true /p:publishUrl="${{ github.workspace }}\published" /verbosity:detailed
+
+      - name: Debug workspace
+        run: dir "${{ github.workspace }}"
+
 
       - name: Show publish output (debug)
         run: dir "${{ github.workspace }}\published"
@@ -80,6 +84,7 @@ jobs:
           app-name: 'ApiTaxi'
           slot-name: 'Production'
           package: ${{ github.workspace }}\package.zip
+
 
 
 
