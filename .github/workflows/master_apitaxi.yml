@@ -5,8 +5,7 @@ name: Build and deploy ASP app to Azure Web App - ApiTaxi
 
 on:
   push:
-    branches:
-      - master
+    branches: [ master ]
   workflow_dispatch:
 
 jobs:
@@ -25,16 +24,33 @@ jobs:
         uses: NuGet/setup-nuget@v1.0.5
 
       - name: Restore NuGet packages
-        run: nuget restore
+        run: nuget restore TaxisTeodoro.sln
 
       - name: Publish to folder
-        run: msbuild TaxisTeodoro.sln /p:Configuration=Release /p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=false /p:SkipInvalidConfigurations=true /p:PackageLocation="${{ github.workspace }}\\published"
+        run: msbuild TaxisTeodoro.sln ^
+             /p:Configuration=Release ^
+             /p:DeployOnBuild=true ^
+             /p:WebPublishMethod=Package ^
+             /p:PackageAsSingleFile=false ^
+             /p:SkipInvalidConfigurations=true ^
+             /p:PackageLocation="${{ github.workspace }}/published"
 
+      - name: Show publish output
+        run: dir "${{ github.workspace }}/published"
+
+      - name: Create ZIP package
+        shell: pwsh
+        run: |
+          $zip = "${{ github.workspace }}\package.zip"
+          if (Test-Path $zip) { Remove-Item $zip -Force }
+          Compress-Archive -Path "${{ github.workspace }}/published/*" -DestinationPath $zip
+          Get-ChildItem $zip
+          
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: ASP-app
-          path: ${{ github.workspace }}\published
+          path: ${{ github.workspace }}/published
 
   deploy:
     runs-on: windows-latest
@@ -48,7 +64,11 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: ASP-app
-      
+          path: "${{ github.workspace }}"  
+          
+      - name: Show downloaded zip
+        run: dir "${{ github.workspace }}"  
+        
       - name: Login to Azure
         uses: azure/login@v2
         with:
@@ -61,8 +81,8 @@ jobs:
         with:
           app-name: 'ApiTaxi'
           slot-name: 'Production'
-          package: ${{ github.workspace }}\published
-
+          package: "${{ github.workspace }}/package.zip"  # y aquí coincide
 
           
+
 
