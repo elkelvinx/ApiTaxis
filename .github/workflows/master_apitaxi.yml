@@ -1,6 +1,3 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-
 name: Build and deploy ASP app to Azure Web App - ApiTaxi
 
 on:
@@ -12,12 +9,12 @@ jobs:
   build:
     runs-on: windows-latest
     permissions:
-      contents: read #This is required for actions/checkout
+      contents: read
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup MSBuild path
+      - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v1.0.2
 
       - name: Setup NuGet
@@ -26,39 +23,35 @@ jobs:
       - name: Restore NuGet packages
         run: nuget restore TaxisTeodoro.sln
 
-      # Publica a una carpeta física
+      # Publica a una carpeta
       - name: Publish to folder
-        run: msbuild inventario5sem\TaxisTeodoro.csproj /p:Configuration=Release /p:DeployOnBuild=true /p:WebPublishMethod=FileSystem /p:DeleteExistingFiles=true /p:publishUrl="${{ github.workspace }}\published" /verbosity:detailed
-
-      - name: Debug workspace
-        run: dir "${{ github.workspace }}"
-
+        run: msbuild TaxisTeodoro.sln /p:Configuration=Release /p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=false /p:SkipInvalidConfigurations=true /p:PackageLocation="${{ github.workspace }}/published"
 
       - name: Show publish output (debug)
-        run: dir "${{ github.workspace }}\published"
+        run: dir "${{ github.workspace }}/published"
 
       # Empaqueta TODO lo publicado en un ZIP
       - name: Create ZIP package
         shell: pwsh
         run: |
-          $zip = "${{ github.workspace }}\package.zip"
+          $zip = "${{ github.workspace }}/package.zip"
           if (Test-Path $zip) { Remove-Item $zip -Force }
-          Compress-Archive -Path "${{ github.workspace }}\published\*" -DestinationPath $zip
+          Compress-Archive -Path "${{ github.workspace }}/published/*" -DestinationPath $zip
           Get-ChildItem $zip
 
-      # SUBE el ZIP como artifact
+      # SUBE el ZIP como artifact (no la carpeta)
       - name: Upload package artifact
         uses: actions/upload-artifact@v4
         with:
           name: webpackage
-          path: ${{ github.workspace }}\package.zip
+          path: ${{ github.workspace }}/package.zip
 
   deploy:
     runs-on: windows-latest
     needs: build
     permissions:
-      id-token: write #This is required for requesting the JWT
-      contents: read #This is required for actions/checkout
+      id-token: write
+      contents: read
 
     steps:
       # DESCARGA el ZIP
@@ -67,10 +60,10 @@ jobs:
         with:
           name: webpackage
           path: ${{ github.workspace }}
-          
+
       - name: Show downloaded files (debug)
-        run: dir "${{ github.workspace }}" 
-        
+        run: dir "${{ github.workspace }}"
+
       - name: Login to Azure
         uses: azure/login@v2
         with:
@@ -78,18 +71,10 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_3F965686D6E6473EB8FD2D8E7E53ADB7 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_060B80BB58684BE0924145B7E49D74B6 }}
 
+      # Apunta EXACTAMENTE al ZIP descargado
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'ApiTaxi'
-          slot-name: 'Production'
-          package: ${{ github.workspace }}\package.zip
-
-
-
-
-
-
-
-
-
+          app-name: ApiTaxi
+          slot-name: Production
+          package: ${{ github.workspace }}/package.zip
