@@ -28,8 +28,8 @@ jobs:
         run: msbuild ./inventario5sem/TaxisTeodoro.csproj /p:Configuration=Release /p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=false /p:SkipInvalidConfigurations=true /p:PackageLocation="${{ github.workspace }}/published"
 
       #Show carpets Structure
-      - name: Show repo structure
-        run: dir /s /b
+    #  - name: Show repo structure
+    #    run: dir /s /b
 
       - name: Show publish output (debug)
         run: dir "${{ github.workspace }}/published"
@@ -82,5 +82,6 @@ jobs:
           app-name: ApiTaxi
           slot-name: Production
           package: ${{ github.workspace }}/package.zip
+
 
 
