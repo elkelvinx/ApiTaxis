@@ -22,6 +22,12 @@ jobs:
 
       - name: Restore NuGet packages
         run: nuget restore TaxisTeodoro.sln
+      - name: Show repo files
+        run: dir /s /b
+
+        
+      - name: Build solution
+        run: msbuild ./inventario5sem/TaxisTeodoro.csproj /p:Configuration=Release
 
       # Publica a una carpeta (FileSystem, no Package)
       - name: Publish to folder
@@ -81,6 +87,7 @@ jobs:
           app-name: ApiTaxi
           slot-name: Production
           package: ${{ github.workspace }}/package.zip
+
 
 
 
