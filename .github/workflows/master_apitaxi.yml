@@ -32,7 +32,10 @@ jobs:
         with:
           name: filelist
           path: ${{ github.workspace }}\filelist.txt
-
+          
+      #BORRAR SI NO FUNCIONA
+      - name: Show repo structure
+        run: Get-ChildItem -Recurse -Force "${{ github.workspace }}"
         
       - name: Build solution
         run: msbuild ./inventario5sem/TaxisTeodoro.csproj /p:Configuration=Release
@@ -40,9 +43,7 @@ jobs:
       # Publica a una carpeta (FileSystem, no Package)
       - name: Publish with dotnet
         run: dotnet publish "${{ github.workspace }}/inventario5sem/TaxisTeodoro.csproj" -c Release -o "${{ github.workspace }}/published"
-      #BORRAR SI NO FUNCIONA
-      - name: Show repo structure
-        run: Get-ChildItem -Recurse -Force "${{ github.workspace }}"
+
  
       - name: Show publish output (debug)
         run: dir "${{ github.workspace }}/published"
@@ -95,6 +96,7 @@ jobs:
           app-name: ApiTaxi
           slot-name: Production
           package: ${{ github.workspace }}/package.zip
+
 
 
 
