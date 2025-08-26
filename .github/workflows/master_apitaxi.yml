@@ -58,12 +58,13 @@ jobs:
       # Publica el PROYECTO web a carpeta (FileSystem), NO como Package
       - name: Publish to folder (FileSystem)
         run: >
-          msbuild "${{ github.workspace }}\inventario5sem\TaxisTeodoro.csproj"
-          /p:Configuration=Release
-          /p:WebPublishMethod=FileSystem
-          /p:DeleteExistingFiles=true
-          /p:VSToolsPath=${{ env.VSToolsPath }}
-          /p:publishUrl="${{ github.workspace }}\published"
+         msbuild "${{ github.workspace }}\inventario5sem\TaxisTeodoro.csproj"
+         /p:Configuration=Release
+         /p:WebPublishMethod=FileSystem
+         /p:DeleteExistingFiles=true
+         /p:VSToolsPath="C:\Program Files\Microsoft Visual Studio\2022\Enterprise\MSBuild\Microsoft\VisualStudio\v17.0"
+         /p:publishUrl="${{ github.workspace }}\published"
+
 
       - name: Show publish output (debug)
         run: dir "${{ github.workspace }}\published"
@@ -113,3 +114,4 @@ jobs:
           app-name: ApiTaxi
           slot-name: Production
           package: ${{ github.workspace }}\package.zip
+
