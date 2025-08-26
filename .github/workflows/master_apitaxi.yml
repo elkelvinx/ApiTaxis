@@ -1,4 +1,4 @@
-name: Build and deploy ASP app to Azure Web App - ApiTaxi
+name: Build and deploy ASP.NET app to Azure Web App - ApiTaxi
 
 on:
   push:
@@ -12,57 +12,76 @@ jobs:
       contents: read
 
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup MSBuild
-        uses: microsoft/setup-msbuild@v1.0.2
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Setup NuGet
-        uses: NuGet/setup-nuget@v1.0.5
+        uses: NuGet/setup-nuget@v1
 
-      - name: Restore NuGet packages
-        run: nuget restore TaxisTeodoro.sln
+      - name: Setup MSBuild (VS)
+        uses: microsoft/setup-msbuild@v1
 
-        # PARA VER TODOS LOS ARCHIVOS
-      - name: List all files recursively
-        run: Get-ChildItem -Recurse -Force | ForEach-Object { $_.FullName } > "${{ github.workspace }}\filelist.txt"
+      # (Opcional) ver dónde está msbuild
+      - name: Where is MSBuild
+        run: where msbuild
 
-      - name: Upload file list
-        uses: actions/upload-artifact@v4
-        with:
-          name: filelist
-          path: ${{ github.workspace }}\filelist.txt
-          
-      #BORRAR SI NO FUNCIONA
-      - name: Show repo structure
-        run: Get-ChildItem -Recurse -Force "${{ github.workspace }}"
-        
-      - name: Build solution
-        run: msbuild ./inventario5sem/TaxisTeodoro.csproj /p:Configuration=Release
+      - name: Restore NuGet packages (solution)
+        run: nuget restore "${{ github.workspace }}\TaxisTeodoro.sln"
 
-      # Publica a una carpeta (FileSystem, no Package)
-      - name: Publish with dotnet
-        run: dotnet publish "${{ github.workspace }}/inventario5sem/TaxisTeodoro.csproj" -c Release -o "${{ github.workspace }}/published"
+      # Detecta automáticamente el VSToolsPath que contiene los Web targets
+      - name: Locate Visual Studio Web targets (VSToolsPath)
+        shell: pwsh
+        run: |
+          $candidates = @(
+            'C:\Program Files (x86)\Microsoft Visual Studio\2022\Enterprise\MSBuild\Microsoft\VisualStudio\v17.0',
+            'C:\Program Files\Microsoft Visual Studio\2022\Enterprise\MSBuild\Microsoft\VisualStudio\v17.0',
+            'C:\Program Files (x86)\Microsoft Visual Studio\2022\Professional\MSBuild\Microsoft\VisualStudio\v17.0',
+            'C:\Program Files\Microsoft Visual Studio\2022\Professional\MSBuild\Microsoft\VisualStudio\v17.0',
+            'C:\Program Files (x86)\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VisualStudio\v17.0',
+            'C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VisualStudio\v17.0'
+          )
+          $found = $null
+          foreach ($p in $candidates) {
+            if (Test-Path (Join-Path $p 'WebApplications\Microsoft.WebApplication.targets')) { $found = $p; break }
+          }
+          if (-not $found) {
+            Write-Error "No se encontró Microsoft.WebApplication.targets en rutas conocidas."
+            exit 1
+          }
+          "VSToolsPath=$found" | Out-File -FilePath $env:GITHUB_ENV -Append
+          Write-Host "VSToolsPath=$found"
 
- 
+      # Build opcional de toda la solución (útil para errores de compilación tempranos)
+      - name: Build solution (Release)
+        run: msbuild "${{ github.workspace }}\TaxisTeodoro.sln" /p:Configuration=Release /m
+
+      # Publica el PROYECTO web a carpeta (FileSystem), NO como Package
+      - name: Publish to folder (FileSystem)
+        run: >
+          msbuild "${{ github.workspace }}\inventario5sem\TaxisTeodoro.csproj"
+          /p:Configuration=Release
+          /p:WebPublishMethod=FileSystem
+          /p:DeleteExistingFiles=true
+          /p:VSToolsPath=${{ env.VSToolsPath }}
+          /p:publishUrl="${{ github.workspace }}\published"
+
       - name: Show publish output (debug)
-        run: dir "${{ github.workspace }}/published"
+        run: dir "${{ github.workspace }}\published"
 
-      # Empaqueta TODO lo publicado en un ZIP
+      # Crea el ZIP del contenido publicado
       - name: Create ZIP package
         shell: pwsh
         run: |
-          $zip = "${{ github.workspace }}/package.zip"
+          $zip = "${{ github.workspace }}\package.zip"
           if (Test-Path $zip) { Remove-Item $zip -Force }
-          Compress-Archive -Path "${{ github.workspace }}/published/*" -DestinationPath $zip
+          Compress-Archive -Path "${{ github.workspace }}\published\*" -DestinationPath $zip
           Get-ChildItem $zip
 
-      # SUBE el ZIP como artifact (no la carpeta)
       - name: Upload package artifact
         uses: actions/upload-artifact@v4
         with:
           name: webpackage
-          path: ${{ github.workspace }}/package.zip
+          path: ${{ github.workspace }}\package.zip
 
   deploy:
     runs-on: windows-latest
@@ -72,7 +91,6 @@ jobs:
       contents: read
 
     steps:
-      # DESCARGA el ZIP
       - name: Download package artifact
         uses: actions/download-artifact@v4
         with:
@@ -89,18 +107,9 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_3F965686D6E6473EB8FD2D8E7E53ADB7 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_060B80BB58684BE0924145B7E49D74B6 }}
 
-      # Apunta EXACTAMENTE al ZIP descargado
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
           app-name: ApiTaxi
           slot-name: Production
-          package: ${{ github.workspace }}/package.zip
-
-
-
-
-
-
-
-
+          package: ${{ github.workspace }}\package.zip
