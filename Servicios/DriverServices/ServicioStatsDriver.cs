@@ -1,5 +1,6 @@
 ﻿using System;
-using System.Data.SqlClient;
+using SqlConnection = Microsoft.Data.SqlClient.SqlConnection;
+using SqlCommand = Microsoft.Data.SqlClient.SqlCommand;
 
 namespace Servicios.DriverServices
 {

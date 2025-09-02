@@ -2,7 +2,7 @@
 using Servicios;
 using System;
 using System.ComponentModel.DataAnnotations;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using System.Net;
 using System.Web.Http;
 using System.IdentityModel.Tokens.Jwt;
@@ -11,8 +11,10 @@ using Servicios.Logs;
 using System.IO;
 using System.Web;
 
+
 namespace TaxisTeodoro.Areas.api
 {
+    //[Authorize]
     /*
      Para la API necesito al inicio traer datos por ejemplo el 
         DocumentType

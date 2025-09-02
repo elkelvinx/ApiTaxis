@@ -12,6 +12,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using static Entidades.Logs.historyLogIn;
+using Microsoft.Data.SqlClient;
 
 namespace TaxistTeodoro.Areas.api
 {

@@ -1,13 +1,14 @@
 ﻿using Entidades;
 using Servicios;
 using System;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using System.Net;
 using System.Runtime.Caching;
 using System.Web.Http;
 
 namespace TaxisTeodoro.Areas.api
 {
+    //[Authorize]
     [RoutePrefix("api/home")]
     public class HomeController : ApiController
     {

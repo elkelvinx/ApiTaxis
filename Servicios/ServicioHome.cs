@@ -1,9 +1,12 @@
 ﻿using Entidades;
 using System;
 using System.Collections.Generic;
+using Microsoft.Data.SqlClient;
 using System.Data;
-using System.Data.SqlClient;
 using System.Runtime.InteropServices.ComTypes;
+using SqlConnection = Microsoft.Data.SqlClient.SqlConnection;
+using SqlCommand = Microsoft.Data.SqlClient.SqlCommand;
+using SqlDataReader = Microsoft.Data.SqlClient.SqlDataReader;
 
 namespace Servicios
 {
@@ -132,7 +135,7 @@ namespace Servicios
                 cmd.Parameters.Add("@startKey", SqlDbType.Int).Value = startKey;
                 cmd.Parameters.Add("@endKey", SqlDbType.Int).Value = endKey;
 
-                SqlDataReader reader = cmd.ExecuteReader();
+                
                 using (SqlDataReader r = cmd.ExecuteReader())
                 {
                     while (r.Read())

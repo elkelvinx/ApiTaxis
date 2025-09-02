@@ -3,7 +3,7 @@ using Entidades.Arrays;
 using Servicios;
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
@@ -11,7 +11,7 @@ using System.Web.Http;
 
 namespace TaxistTeodoro.Areas.api
 {
-
+   // [Authorize]
     public class StreetController : ApiController
     {
         // GET: api/Street

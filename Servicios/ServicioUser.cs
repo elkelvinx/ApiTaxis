@@ -2,9 +2,13 @@
 using Entidades.LogIn;
 using ServicioEncriptacion;
 using System;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
+using SqlConnection = Microsoft.Data.SqlClient.SqlConnection;
+using SqlCommand = Microsoft.Data.SqlClient.SqlCommand;
+using SqlDataReader = Microsoft.Data.SqlClient.SqlDataReader;
 using Servicios.Logs;
 using Entidades.Response;
+
 
 namespace Servicios
 {

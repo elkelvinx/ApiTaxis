@@ -5,7 +5,7 @@ using Servicios.Logs;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
@@ -13,7 +13,7 @@ using System.Web.Http;
 
 namespace TaxistTeodoro.Areas.api
 {
-    [Authorize]
+   // [Authorize]
     public class DriverController : ApiController
     {
         private readonly ServicioDriver _servicioDriver;
@@ -23,8 +23,8 @@ namespace TaxistTeodoro.Areas.api
             _servicioDriver = new ServicioDriver();
             _servicioStatsDriver = new ServicioStatsDriver();
         }
-        // GET: api/Cliente
-
+        [HttpGet]
+        [Route("api/Driver")]
         public HttpResponseMessage Get()
         {
             _ = new listDrivers();
@@ -33,7 +33,8 @@ namespace TaxistTeodoro.Areas.api
             return response;
         }
 
-        [System.Web.Http.HttpGet]
+        [HttpGet]
+        [Route("api/Driver")]
         public HttpResponseMessage Get(int id)
         {
             var entidad = new Driver();
@@ -41,8 +42,9 @@ namespace TaxistTeodoro.Areas.api
             var response = Request.CreateResponse<Driver>(System.Net.HttpStatusCode.Created, entidad);
             return response;
         }
-        //[HttpPost]
-        public IHttpActionResult Grabar(Driver obj)
+        [HttpPost]
+        [Route("api/Driver")] // ✅ CORREGIDO
+        public IHttpActionResult Post(Driver obj)
         {
             var response = new ApiResponse<string>();
             try
@@ -70,6 +72,8 @@ namespace TaxistTeodoro.Areas.api
                 return Content(HttpStatusCode.InternalServerError, ex.Message);
             }
         }
+        [HttpPut]
+        [Route("api/Driver")]
         public IHttpActionResult Put(Driver obj)
         {
             ApiResponse<string> response = new ApiResponse<string>();
@@ -93,6 +97,8 @@ namespace TaxistTeodoro.Areas.api
                 return InternalServerError(ex);
             }
         }
+        [HttpDelete]
+        [Route("api/Driver/{id}")]
         public IHttpActionResult Delete(int id)
         {
             ApiResponse<string> response = new ApiResponse<string>();
@@ -121,6 +127,7 @@ namespace TaxistTeodoro.Areas.api
 
         }
         //este no sirve ya al parecer
+        [NonAction] // ✅ Esto evita que se exponga como endpoint
         public void reduceCountTableDriversTotal(Driver obj)
         {
             try

@@ -6,9 +6,11 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+using Microsoft.Data.SqlClient;
 
 namespace TaxistTeodoro.Areas.api
 {
+    //[Authorize]
     public class UnitController : ApiController
     {
         // GET: api/Admin

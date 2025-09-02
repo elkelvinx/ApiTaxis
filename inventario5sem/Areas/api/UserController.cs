@@ -4,15 +4,16 @@ using Entidades.LogIn;
 using Entidades.Response;
 using Servicios;
 using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+using System.Collections.Generic;
 
 namespace TaxistTeodoro.Areas.api
 {
+
     public class UserController : ApiController
     {
         private readonly ServicioUser _servicioUser;
