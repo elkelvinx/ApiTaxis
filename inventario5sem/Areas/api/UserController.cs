@@ -48,7 +48,7 @@ namespace TaxistTeodoro.Areas.api
             try
             {
                 response.Data = srv.Insertar(obj);
-                if(!response.Success)
+                if(response.Data!="ok")
                 {
                     return Content(HttpStatusCode.BadRequest, response);
                 }
@@ -65,7 +65,7 @@ namespace TaxistTeodoro.Areas.api
             try
             {
                 response = srv.Actualizar(obj);
-                if (!response.Success)
+                if (response.Data!="ok")
                 {
                     return Content(HttpStatusCode.BadRequest, response);
                 }
@@ -83,7 +83,7 @@ namespace TaxistTeodoro.Areas.api
             try
             {
                 srv.softDelete(id);
-                if (!response.Success)
+                if (response.Data != "ok")
                 {
                     return Content(HttpStatusCode.BadRequest, response);
                 }
