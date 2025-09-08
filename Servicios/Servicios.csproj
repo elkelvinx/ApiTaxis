@@ -256,10 +256,11 @@
     <Compile Include="DriverServices\ServicioDriver.cs" />
     <Compile Include="ServicioPermission.cs" />
     <Compile Include="ServiciosBD.cs" />
-    <Compile Include="Unit\ServicioCar.cs" />
+    <Compile Include="UnitsCarpet\ServicioCar.cs" />
     <Compile Include="ServicioContactDriver.cs" />
-    <Compile Include="Unit\ServicioSinister.cs" />
-    <Compile Include="Unit\ServicioUnit.cs" />
+    <Compile Include="UnitsCarpet\ServicioSinister.cs" />
+    <Compile Include="UnitsCarpet\ServicioStatsSinister.cs" />
+    <Compile Include="UnitsCarpet\ServicioUnit.cs" />
     <Compile Include="ServicioStreet.cs" />
     <Compile Include="ServicioSettlement.cs" />
   </ItemGroup>

@@ -1,79 +1,155 @@
-﻿using Entidades;
-using Entidades.Cars;
+﻿using Entidades.Cars;
+using Entidades.Response;
+using Microsoft.Data.SqlClient;
 using Servicios;
+using Servicios.UnitsCarpet;
+using Servicios.Logs;
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
-using Microsoft.Data.SqlClient;
 
 namespace TaxistTeodoro.Areas.api
 {
     //[Authorize]
     public class SinisterController : ApiController
     {
-        // GET: api/Admin
-        
-        public HttpResponseMessage Get()    
+        private readonly ServicioSinister _servicioSinister;
+        private readonly ServicioStatsSinister _servicioStatsSinister;
+
+        public SinisterController()
         {
-            var entidad = new listSinister();
-            var srv = new ServicioSinister();
-            entidad = srv.consultarSiniestros();
-            var response = Request.CreateResponse<IEnumerable<Sinister>>(System.Net.HttpStatusCode.Created, entidad);
+            _servicioSinister = new ServicioSinister();
+            _servicioStatsSinister = new ServicioStatsSinister();
+        }
+
+        [HttpGet]
+        [Route("api/Sinister")]
+        public HttpResponseMessage Get()
+        {
+            var entidad = _servicioSinister.consultarSiniestros();
+            var response = Request.CreateResponse<IEnumerable<Sinister>>(HttpStatusCode.OK, entidad);
             return response;
         }
-        
-        // GET: api/Admin/5
+
+        [HttpGet]
+        [Route("api/Sinister/{id}")]
         public HttpResponseMessage Get(int id)
         {
-            var entidad = new Sinister();
-            var srv = new ServicioSinister();
-            entidad = srv.consultarSiniestro(id);
-            var response = Request.CreateResponse<Sinister>(System.Net.HttpStatusCode.Created, entidad);
+            var entidad = _servicioSinister.consultarSiniestro(id);
+            var response = Request.CreateResponse<Sinister>(HttpStatusCode.OK, entidad);
             return response;
         }
 
-        // POST: api/Admin
-     
-        public string Post(Sinister ent)
+        [HttpPost]
+        [Route("api/Sinister")]
+        public IHttpActionResult Post(Sinister obj)
         {
-            var srv = new ServicioSinister();
-            string respuesta = "ok";
+            var response = new ApiResponse<string>();
             try
             {
-                respuesta = srv.insertar(ent);
-            }
-            catch(Exception ex) { respuesta = ex.ToString(); }  
-            return respuesta;
-        }
+                string result = _servicioSinister.insertar(obj);
+                response.Success = true;
+                response.Data = result;
 
-        // PUT: api/Admin/5
-        public string Put(Sinister obj)
-        {
-            var srv = new ServicioSinister();
-            string res = "ok";
-            try 
+                // ✅ actualizar tabla KPI siniestros
+                
+                 _servicioStatsSinister.ActualizarSinisterStatusMensual(obj.dateEvent);
+                
+
+                return Content(HttpStatusCode.Created, obj);
+            }
+            catch (ValidationException ex)
             {
-                res = srv.Actualizar(obj);
+                return BadRequest(ex.Message);
             }
-            catch (Exception ex) { res = ex.ToString(); }
-            return res;
+            catch (SqlException ex)
+            {
+                return Content(HttpStatusCode.InternalServerError, ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return Content(HttpStatusCode.InternalServerError, ex.Message);
+            }
         }
 
-        // DELETE: api/Admin/5
-        public string Delete(int id)
+        [HttpPut]
+        [Route("api/Sinister")]
+        public IHttpActionResult Put(Sinister obj)
         {
-            var res = "ok";
-            var srv = new ServicioSinister();
+            var response = new ApiResponse<string>();
             try
             {
-                srv.eliminar(id);
+                string result = _servicioSinister.Actualizar(obj);
+                response.Success = true;
+                response.Data = result;
+                return Ok(response);
             }
-            catch(Exception ex) { res = ex.ToString(); }
-            return res;
+            catch (ValidationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (SqlException ex)
+            {
+                return InternalServerError(ex);
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
         }
 
+        [HttpDelete]
+        [Route("api/Sinister/{id}")]
+        public IHttpActionResult Delete(int id)
+        {
+            var response = new ApiResponse<string>();
+            try
+            {
+                var sinister = _servicioSinister.consultarSiniestro(id);
+                _servicioSinister.eliminar(id);
+                response.Success = true;
+
+                if (sinister != null)
+                {
+                    _servicioStatsSinister.DisminuirSinisterMonthlyStats(sinister.dateEvent);
+                }
+
+                return Ok(response);
+            }
+            catch (SqlException ex)
+            {
+                return InternalServerError(ex);
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+
+        // Este helper sería como el de drivers, por si quieres invocarlo manualmente
+        [NonAction]
+        public void reduceCountTableSinistersTotal(Sinister obj)
+        {
+            try
+            {
+                if (obj != null)
+                    _servicioStatsSinister.DisminuirSinisterMonthlyStats(obj.dateEvent);
+                else throw new Exception();
+            }
+            catch (Exception ex)
+            {
+                ServicioErrorLogs.RegisterErrorLogSinCMD(
+                    "Sinister",
+                    1,
+                    "UPDATE SinistersMonthlyStats SET totalSinisters = totalSinisters - 1 " +
+                    "WHERE (eventYear * 100 + eventMonth) = " + obj?.dateEvent +
+                    " AND totalSinisters > 0;" + ex,
+                    "Se borró un siniestro y al actualizar la tabla de conteo totales de siniestros falló"
+                );
+            }
+        }
     }
 }

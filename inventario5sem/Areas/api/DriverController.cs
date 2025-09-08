@@ -17,11 +17,11 @@ namespace TaxistTeodoro.Areas.api
     public class DriverController : ApiController
     {
         private readonly ServicioDriver _servicioDriver;
-        private readonly ServicioStatsDriver _servicioStatsDriver;
+        private readonly ServicioStatsSinister _servicioStatsDriver;
         public DriverController()
         {
             _servicioDriver = new ServicioDriver();
-            _servicioStatsDriver = new ServicioStatsDriver();
+            _servicioStatsDriver = new ServicioStatsSinister();
         }
         [HttpGet]
         [Route("api/Driver")]
@@ -117,6 +117,8 @@ namespace TaxistTeodoro.Areas.api
             }
 
             catch (SqlException ex)
+            //por ejemplo asi lo dejamos en el drivers;
+
             {
                 return InternalServerError(ex);
             }

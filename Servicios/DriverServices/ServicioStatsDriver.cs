@@ -4,7 +4,7 @@ using SqlCommand = Microsoft.Data.SqlClient.SqlCommand;
 
 namespace Servicios.DriverServices
 {
-    public class ServicioStatsDriver
+    public class ServicioStatsSinister
     {
         public void InicializarDriversMonthlyStats()
         {
