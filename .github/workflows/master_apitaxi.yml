@@ -27,13 +27,12 @@ jobs:
       - name: 🏗️ Compilar solución (Release)
         run: msbuild "TaxisTeodoro.sln" /p:Configuration=Release /m
 
-      - name: 📦 Publicar proyecto web (FileSystem)
-        run: |
-          msbuild "inventario5sem/TaxisTeodoro.csproj" ^
-            /p:Configuration=Release ^
-            /p:WebPublishMethod=FileSystem ^
-            /p:DeleteExistingFiles=true ^
-            /p:publishUrl="${{ github.workspace }}\publish_output"
+     
+            
+      - name: Publicar proyecto web (FileSystem)
+        shell: pwsh
+        run: msbuild "inventario5sem/TaxisTeodoro.csproj" /p:Configuration=Release /p:WebPublishMethod=FileSystem /p:DeleteExistingFiles=true /p:publishUrl="$Env:GITHUB_WORKSPACE\publish_output"
+
 
       - name: 📂 Mostrar archivos publicados
         run: dir "${{ github.workspace }}\publish_output"
@@ -82,3 +81,4 @@ jobs:
           app-name: ApiTaxi
           slot-name: Production
           package: ${{ github.workspace }}\package.zip
+
