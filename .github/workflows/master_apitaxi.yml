@@ -1,4 +1,4 @@
-name: 🚀 Build and Deploy ASP.NET Web App - ApiTaxi
+name: Build and Publish ASP.NET Web App - ApiTaxis
 
 on:
   push:
@@ -8,77 +8,74 @@ on:
 jobs:
   build:
     runs-on: windows-latest
-    permissions:
-      contents: read
 
     steps:
-      - name: 📦 Checkout del código
+      - name: 🔹 Checkout del código
         uses: actions/checkout@v4
 
-      - name: 🔧 Instalar NuGet
-        uses: NuGet/setup-nuget@v1
+      - name: 🔹 Instalar MSBuild
+        uses: microsoft/setup-msbuild@v1.3.1
 
-      - name: 🔨 Configurar MSBuild
-        uses: microsoft/setup-msbuild@v1
+      - name: 🔹 Instalar NuGet
+        uses: NuGet/setup-nuget@v1.2.0
 
-      - name: 📥 Restaurar paquetes NuGet
+      - name: 🔹 Restaurar paquetes NuGet
         run: nuget restore "TaxisTeodoro.sln"
 
-      - name: 🏗️ Compilar solución (Release)
+      - name: 🔹 Compilar solución en Release
         run: msbuild "TaxisTeodoro.sln" /p:Configuration=Release /m
 
-     
-            
-      - name: Publicar proyecto web (FileSystem)
-        shell: pwsh
-        run: msbuild "inventario5sem/TaxisTeodoro.csproj" /p:Configuration=Release /p:WebPublishMethod=FileSystem /p:DeleteExistingFiles=true /p:publishUrl="$Env:GITHUB_WORKSPACE\publish_output"
-
-
-      - name: 📂 Mostrar archivos publicados
-        run: dir "${{ github.workspace }}\publish_output"
-
-      - name: 🗜️ Crear paquete ZIP
+      - name: 🔹 Crear carpeta de publicación
         shell: pwsh
         run: |
-          $zip = "${{ github.workspace }}\package.zip"
-          if (Test-Path $zip) { Remove-Item $zip -Force }
-          Compress-Archive -Path "${{ github.workspace }}\publish_output\*" -DestinationPath $zip
-          Get-ChildItem $zip
+          $publishDir = "$Env:GITHUB_WORKSPACE\publish_output"
+          if (-not (Test-Path $publishDir)) {
+            New-Item -ItemType Directory -Force -Path $publishDir | Out-Null
+          }
+          Write-Host "📁 Carpeta de publicación creada en: $publishDir"
 
-      - name: 📤 Subir artefacto
+      - name: 🔹 Publicar proyecto Web (FileSystem)
+        shell: pwsh
+        run: |
+          $projectPath = "inventario5sem\TaxisTeodoro.csproj"
+          $publishDir = "$Env:GITHUB_WORKSPACE\publish_output"
+
+          if (-not (Test-Path $projectPath)) {
+            Write-Error "❌ No se encontró el proyecto en la ruta: $projectPath"
+            exit 1
+          }
+
+          Write-Host "🚀 Publicando proyecto $projectPath en $publishDir ..."
+          msbuild $projectPath /p:Configuration=Release /p:WebPublishMethod=FileSystem /p:DeleteExistingFiles=true /p:publishUrl=$publishDir
+
+          if (-not (Test-Path $publishDir)) {
+            Write-Error "❌ No se generó la carpeta de publicación."
+            exit 1
+          }
+
+      - name: 🔹 Verificar archivos publicados
+        shell: pwsh
+        run: |
+          $publishDir = "$Env:GITHUB_WORKSPACE\publish_output"
+          if (Test-Path $publishDir) {
+            Write-Host "✅ Archivos publicados correctamente en $publishDir"
+            Get-ChildItem $publishDir -Recurse | Select-Object FullName
+          } else {
+            Write-Error "❌ La carpeta publish_output no existe después del Publish."
+            exit 1
+          }
+
+      - name: 🔹 Crear ZIP del resultado
+        shell: pwsh
+        run: |
+          $zip = "$Env:GITHUB_WORKSPACE\web_publish.zip"
+          $publishDir = "$Env:GITHUB_WORKSPACE\publish_output"
+          if (Test-Path $zip) { Remove-Item $zip -Force }
+          Compress-Archive -Path "$publishDir\*" -DestinationPath $zip
+          Write-Host "📦 Archivo ZIP creado en: $zip"
+
+      - name: 🔹 Subir artefacto compilado
         uses: actions/upload-artifact@v4
         with:
-          name: webpackage
-          path: ${{ github.workspace }}\package.zip
-
-  deploy:
-    runs-on: windows-latest
-    needs: build
-    permissions:
-      id-token: write
-      contents: read
-
-    steps:
-      - name: 📥 Descargar artefacto
-        uses: actions/download-artifact@v4
-        with:
-          name: webpackage
-          path: ${{ github.workspace }}
-
-      - name: 🔍 Mostrar contenido descargado
-        run: dir "${{ github.workspace }}"
-
-      - name: 🔐 Login en Azure
-        uses: azure/login@v2
-        with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_F95E2D57B7A6444693575891BB22BFDF }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_3F965686D6E6473EB8FD2D8E7E53ADB7 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_060B80BB58684BE0924145B7E49D74B6 }}
-
-      - name: 🚀 Desplegar en Azure Web App
-        uses: azure/webapps-deploy@v3
-        with:
-          app-name: ApiTaxi
-          slot-name: Production
-          package: ${{ github.workspace }}\package.zip
-
+          name: WebPublishPackage
+          path: ${{ github.workspace }}\web_publish.zip
