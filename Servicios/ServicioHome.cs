@@ -132,7 +132,6 @@ namespace Servicios
                 cmd.Parameters.Add("@startKey", SqlDbType.Int).Value = startKey;
                 cmd.Parameters.Add("@endKey", SqlDbType.Int).Value = endKey;
 
-                SqlDataReader reader = cmd.ExecuteReader();
                 using (SqlDataReader r = cmd.ExecuteReader())
                 {
                     while (r.Read())
