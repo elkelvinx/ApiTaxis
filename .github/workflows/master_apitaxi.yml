@@ -1,5 +1,6 @@
 name: Build and Publish ASP.NET Web App - ApiTaxis
 
+
 on:
   push:
     branches: [ master ]
@@ -79,3 +80,4 @@ jobs:
         with:
           name: WebPublishPackage
           path: ${{ github.workspace }}\web_publish.zip
+
