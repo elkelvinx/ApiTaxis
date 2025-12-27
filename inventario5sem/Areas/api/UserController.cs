@@ -4,15 +4,16 @@ using Entidades.LogIn;
 using Entidades.Response;
 using Servicios;
 using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+using System.Collections.Generic;
 
 namespace TaxistTeodoro.Areas.api
 {
+
     public class UserController : ApiController
     {
         private readonly ServicioUser _servicioUser;
@@ -47,7 +48,7 @@ namespace TaxistTeodoro.Areas.api
             try
             {
                 response.Data = srv.Insertar(obj);
-                if(!response.Success)
+                if(response.Data!="ok")
                 {
                     return Content(HttpStatusCode.BadRequest, response);
                 }
@@ -64,7 +65,7 @@ namespace TaxistTeodoro.Areas.api
             try
             {
                 response = srv.Actualizar(obj);
-                if (!response.Success)
+                if (response.Data!="ok")
                 {
                     return Content(HttpStatusCode.BadRequest, response);
                 }
@@ -82,7 +83,7 @@ namespace TaxistTeodoro.Areas.api
             try
             {
                 srv.softDelete(id);
-                if (!response.Success)
+                if (response.Data != "ok")
                 {
                     return Content(HttpStatusCode.BadRequest, response);
                 }

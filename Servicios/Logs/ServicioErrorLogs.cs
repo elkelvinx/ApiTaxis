@@ -3,9 +3,11 @@ using Entidades.Logs;
 using Entidades.Response;
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using System.Security.Claims;
 using System.Threading;
+using SqlCommand = Microsoft.Data.SqlClient.SqlCommand;
+using SqlDataReader = Microsoft.Data.SqlClient.SqlDataReader;
 
 namespace Servicios.Logs
 {

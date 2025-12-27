@@ -1,71 +1,104 @@
-﻿using Entidades.LogIn;
+﻿using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Blob;
 using Servicios;
 using System;
-using System.ComponentModel.DataAnnotations;
-using System.Data.SqlClient;
-using System.Net;
-using System.Web.Http;
-using System.IdentityModel.Tokens.Jwt;
-using System.Reflection;
-using Servicios.Logs;
+using System.Configuration;
+using Microsoft.Data.SqlClient;
 using System.IO;
+using System.Threading.Tasks;
 using System.Web;
+using System.Web.Http;
 
 namespace TaxisTeodoro.Areas.api
 {
-    /*
-     Para la API necesito al inicio traer datos por ejemplo el 
-        DocumentType
-        RelatedEntityId
-
-     para luego traerte a todos los Driver o permisionarios o la entidad seleccionada
-        Thing
-        
-    verificar que
-    el archivo no este vacio
-     */
-
     public class ImageController : ApiController
     {
-        private readonly ServicioLogIn _ServicioLogIn; // Inject Encriptacion service
-        private readonly ServicioUser _ServicioUser;
-        public ImageController()
-        {
-            _ServicioLogIn = new ServicioLogIn();
-            _ServicioUser = new ServicioUser();
-        }
-
-        /*
         [HttpPost]
-        [Route("guardarImagen")]
-          public string guardarImagen()
-         {
-             var httpRequest = HttpContext.Current.Request;
-             var postedFile = httpRequest.Files["Archivo"];
+        [Route("api/upload/document")]
+        public async Task<IHttpActionResult> UploadDocument()
+        {
+            try
+            {
+                var httpRequest = HttpContext.Current.Request;
 
-             var ruta = string.Empty;
-             if (postedFile != null && postedFile.ContentLength > 0)
-             {
-                 var nombreArchivo = Guid.NewGuid().ToString() + ".jpg";
-                 //ruta = HttpContext.Current.Server.MapPath("~/Imagenes/") + nombreArchivo;
-                 ruta = @"C:\Archivos_progr-\ANGULAR\Teodoro programa\extra\estructure\Uploaded_IMG\" + nombreArchivo;
-                 using (var fileStream = new FileStream(ruta, FileMode.Create))
-                 {
-                     postedFile.InputStream.CopyTo(fileStream);
-                 }
-                 // Guardar la ruta en la base de datos
-                 using (var connection = new SqlConnection(connectionString))
-                 {
-                     var query = "INSERT INTO Imagenes (RutaImagen, CategoriaID) VALUES (@RutaImagen, @CategoriaID)";
-                     var command = new SqlCommand(query, connection);
-                     command.Parameters.AddWithValue("@RutaImagen", ruta);
-                     command.Parameters.AddWithValue("@CategoriaID", categoriaId);
-                     connection.Open();
-                     command.ExecuteNonQuery();
-                 }
-             }
-             return Ok(ruta);
-         }
-         */
+                // Validar archivo
+                if (httpRequest.Files.Count == 0)
+                    return BadRequest("No file uploaded.");
+
+                var file = httpRequest.Files[0];
+                if (file == null || file.ContentLength == 0)
+                    return BadRequest("Empty file.");
+
+                // Datos extra desde form-data
+                var entityType = httpRequest.Form["EntityType"];
+                var entityId = httpRequest.Form["EntityId"];
+                var documentTypeCode = httpRequest.Form["DocumentTypeCode"];
+                var description = httpRequest.Form["Description"] ?? "";
+
+                // Configuración desde web.config
+                var connectionString = ConfigurationManager.AppSettings["AzureBlobConnection"];
+                var containerName = ConfigurationManager.AppSettings["AzureBlobContainer"];
+
+                // Subir archivo a Azure Blob
+                CloudStorageAccount storageAccount = CloudStorageAccount.Parse(connectionString);
+                CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+                CloudBlobContainer container = blobClient.GetContainerReference(containerName);
+                await container.CreateIfNotExistsAsync();
+
+                var originalFileName = Path.GetFileName(file.FileName);
+                var extension = Path.GetExtension(originalFileName);
+                var storedFileName = Guid.NewGuid().ToString() + extension; // nombre único
+                var blockBlob = container.GetBlockBlobReference(storedFileName);
+
+                using (var stream = file.InputStream)
+                {
+                    await blockBlob.UploadFromStreamAsync(stream);
+                }
+
+                var fileUrl = blockBlob.Uri.ToString();
+
+
+                // Guardar metadata en BD
+
+
+                using (SqlConnection conn = ServiciosBD.ObtenerConexion())
+                {
+                    await conn.OpenAsync();
+                    var query = @"
+                        INSERT INTO Documents 
+                        (OriginalFileName, StoredFileName, FilePath, FileType, DocumentTypeCode, Description, FileSize, UploadDate, UploadedBy, RelatedEntityType, RelatedEntityId) 
+                        VALUES (@OriginalFileName, @StoredFileName, @FilePath, @FileType, @DocumentTypeCode, @Description, @FileSize, GETDATE(), @UploadedBy, @RelatedEntityType, @RelatedEntityId);
+                        SELECT SCOPE_IDENTITY();
+                    ";
+
+                    using (var cmd = new SqlCommand(query, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@OriginalFileName", originalFileName);
+                        cmd.Parameters.AddWithValue("@StoredFileName", storedFileName);
+                        cmd.Parameters.AddWithValue("@FilePath", fileUrl);
+                        cmd.Parameters.AddWithValue("@FileType", extension.TrimStart('.'));
+                        cmd.Parameters.AddWithValue("@DocumentTypeCode", documentTypeCode);
+                        cmd.Parameters.AddWithValue("@Description", description);
+                        cmd.Parameters.AddWithValue("@FileSize", file.ContentLength);
+                        cmd.Parameters.AddWithValue("@UploadedBy", "admin"); // luego puedes usar el usuario real
+                        cmd.Parameters.AddWithValue("@RelatedEntityType", entityType);
+                        cmd.Parameters.AddWithValue("@RelatedEntityId", string.IsNullOrEmpty(entityId) ? (object)DBNull.Value : Convert.ToInt32(entityId));
+
+                        var insertedId = Convert.ToInt32(await cmd.ExecuteScalarAsync());
+                        return Ok(new
+                        {
+                            DocumentId = insertedId,
+                            Url = fileUrl,  
+                            Message = "File uploaded successfully"
+                        });
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                
+                return InternalServerError(ex);
+            }
+        }
     }
 }

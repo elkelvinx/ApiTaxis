@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
+using Microsoft.Data.SqlClient;
 
 namespace University.API.Controllers
 {

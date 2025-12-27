@@ -2,7 +2,9 @@
 using Servicios;
 using System;
 using System.ComponentModel.DataAnnotations;
-using System.Data.SqlClient;
+using SqlConnection = Microsoft.Data.SqlClient.SqlConnection;
+using SqlCommand = Microsoft.Data.SqlClient.SqlCommand;
+using SqlDataReader = Microsoft.Data.SqlClient.SqlDataReader;
 using System.Net;
 using System.Web.Http;
 using System.IdentityModel.Tokens.Jwt;
@@ -11,7 +13,7 @@ using Servicios.Logs;
 
 namespace TaxisTeodoro.Areas.api
 {
-    
+   // [Authorize]
     public class LogInController : ApiController
     {
         private readonly ServicioLogIn _ServicioLogIn; // Inject Encriptacion service

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.SqlClient;
+using SqlConnection = Microsoft.Data.SqlClient.SqlConnection;
+using SqlCommand = Microsoft.Data.SqlClient.SqlCommand;
+using SqlDataReader = Microsoft.Data.SqlClient.SqlDataReader;
 using System.Globalization;
 using System.Linq;
 using System.Security.AccessControl;

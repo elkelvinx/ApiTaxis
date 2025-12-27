@@ -2,9 +2,13 @@
 using Entidades.LogIn;
 using ServicioEncriptacion;
 using System;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
+using SqlConnection = Microsoft.Data.SqlClient.SqlConnection;
+using SqlCommand = Microsoft.Data.SqlClient.SqlCommand;
+using SqlDataReader = Microsoft.Data.SqlClient.SqlDataReader;
 using Servicios.Logs;
 using Entidades.Response;
+
 
 namespace Servicios
 {
@@ -127,8 +131,8 @@ namespace Servicios
             obj.password = _encriptacion.GetSHA256(obj.password);
             //transaction que inserta un User y obtiene el id de ese User
             string cadena = "BEGIN TRANSACTION; " +
-                         "INSERT INTO usersData (name, email, password, dateCreated) " +
-                         "VALUES (@name, @email, @password, @dateCreated); " +
+                         "INSERT INTO usersData (name, email, password, dateCreated,bloqued) " +
+                         "VALUES (@name, @email, @password, @dateCreated,0); " +
                          "SELECT SCOPE_IDENTITY(); " +
                          "COMMIT;";
             using (SqlConnection con = ServiciosBD.ObtenerConexion())
@@ -163,9 +167,10 @@ namespace Servicios
         public ApiResponse<string> InsertarUserPermission(UserPermissions obj)
         {
             var response = new ApiResponse<string>();
+            response.Data = "ok";
             string cadena = "BEGIN TRANSACTION; " +
-            "INSERT INTO userPermissions (idUser, idRole, driver, admin, permissionair, unit, sinister, extraData, pdf) " +
-            "VALUES (@idUser, @idRole, @driver, @admin, @permissionair, @unit, @sinister, @extraData, @pdf); " +
+            "INSERT INTO userPermissions (idUser, idRole, driver, admin, permissionair, unit, sinister, extraData, pdf,changeLog) " +
+            "VALUES (@idUser, @idRole, @driver, @admin, @permissionair, @unit, @sinister, @extraData, @pdf,@changeLog); " +
             "COMMIT;";
             using (SqlConnection con = ServiciosBD.ObtenerConexion())
             {
@@ -180,6 +185,7 @@ namespace Servicios
                     cmd.Parameters.AddWithValue("@sinister", obj.sinister);
                     cmd.Parameters.AddWithValue("@extraData", obj.extraData);
                     cmd.Parameters.AddWithValue("@pdf", obj.pdf);
+                    cmd.Parameters.AddWithValue("@changeLog", obj.changeLog);
                     try
                     {
                         //con.Open();
@@ -268,7 +274,7 @@ namespace Servicios
             {
                 try
                 {
-                    SqlCommand cmd = new SqlCommand("update userData set active=false where id=@id", con);
+                    SqlCommand cmd = new SqlCommand("update usersData set active=false where id=@id", con);
                     cmd.Parameters.AddWithValue("@id", id);
                     cmd.ExecuteNonQuery();
                     response.Success = true;

@@ -7,6 +7,9 @@ using Servicios.Logs;
 using System;
 using System.Configuration;
 using System.Data.SqlClient;
+using SqlConnection = Microsoft.Data.SqlClient.SqlConnection;
+using SqlCommand = Microsoft.Data.SqlClient.SqlCommand;
+using SqlDataReader = Microsoft.Data.SqlClient.SqlDataReader;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -149,7 +152,7 @@ namespace Servicios
                 issuer: issuer,
                 subject: claimsIdentity,
                 notBefore: DateTime.UtcNow,
-                expires: DateTime.UtcNow.AddMinutes(1900),
+                expires: DateTime.UtcNow.AddMinutes(60),
                 signingCredentials: credentials);
             var jwtTokenString = tokenHandler.WriteToken(jwtSecurityToken);
             return jwtTokenString;

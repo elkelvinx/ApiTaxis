@@ -3,9 +3,11 @@ using Entidades.Logs;
 using Entidades.Response;
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using SqlConnection = Microsoft.Data.SqlClient.SqlConnection;
+using SqlCommand = Microsoft.Data.SqlClient.SqlCommand;
+using SqlDataReader = Microsoft.Data.SqlClient.SqlDataReader;
 using static Entidades.Logs.historyLogIn;
 
 namespace Servicios.Logs

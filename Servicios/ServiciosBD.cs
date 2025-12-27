@@ -1,32 +1,44 @@
-﻿using System.Data.SqlClient;
+﻿using Microsoft.Data.SqlClient;
 using System;
+using System.Configuration;
 using System.Data;
 using System.Text;
-using System.Configuration;
+
 
 namespace Servicios
 {
     public class ServiciosBD
     {
+
         public static SqlConnection ObtenerConexion()
         {
+            // Si estás debuggeando en tu PC → usa LocalConnection
+            string connectionStringName = EsDesarrolloLocal()
+                ? "LocalConnection"
+                : "DefaultConnection";
 
-            SqlConnection conexion = new SqlConnection();
+            string cadena = ConfigurationManager.ConnectionStrings[connectionStringName].ConnectionString;
 
-            string cadena = "server=LAPTOP-2LUPI6JF\\SQLEXPRESS; database=TaxisBdTeo; integrated security = true";
-            conexion.ConnectionString = cadena;
+            var conexion = new SqlConnection(cadena);
             try
             {
                 conexion.Open();
+                return conexion;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw;
+                throw new Exception($"Error conectando a la base de datos ({connectionStringName}): {ex.Message}", ex);
             }
-
-            return conexion;
-
         }
+
+        private static bool EsDesarrolloLocal()
+        {
+            // Detecta si estás corriendo en tu máquina
+            return System.Diagnostics.Debugger.IsAttached ||
+                   Environment.MachineName.Equals("LAPTOP-2LUPI6JF", StringComparison.OrdinalIgnoreCase);
+        }
+
+
         //cosas del profe/////////////////////
         public static SqlCommand ObtenerComando(SqlConnection conn, string sql)
         {
