@@ -1,0 +1,83 @@
+name: Build and Publish ASP.NET Web App - ApiTaxis
+
+
+on:
+  push:
+    branches: [ master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: 🔹 Checkout del código
+        uses: actions/checkout@v4
+
+      - name: 🔹 Instalar MSBuild
+        uses: microsoft/setup-msbuild@v1.3.1
+
+      - name: 🔹 Instalar NuGet
+        uses: NuGet/setup-nuget@v1.2.0
+
+      - name: 🔹 Restaurar paquetes NuGet
+        run: nuget restore "TaxisTeodoro.sln"
+
+      - name: 🔹 Compilar solución en Release
+        run: msbuild "TaxisTeodoro.sln" /p:Configuration=Release /m
+
+      - name: 🔹 Crear carpeta de publicación
+        shell: pwsh
+        run: |
+          $publishDir = "$Env:GITHUB_WORKSPACE\publish_output"
+          if (-not (Test-Path $publishDir)) {
+            New-Item -ItemType Directory -Force -Path $publishDir | Out-Null
+          }
+          Write-Host "📁 Carpeta de publicación creada en: $publishDir"
+
+      - name: 🔹 Publicar proyecto Web (FileSystem)
+        shell: pwsh
+        run: |
+          $projectPath = "inventario5sem\TaxisTeodoro.csproj"
+          $publishDir = "$Env:GITHUB_WORKSPACE\publish_output"
+
+          if (-not (Test-Path $projectPath)) {
+            Write-Error "❌ No se encontró el proyecto en la ruta: $projectPath"
+            exit 1
+          }
+
+          Write-Host "🚀 Publicando proyecto $projectPath en $publishDir ..."
+          msbuild $projectPath /p:Configuration=Release /p:WebPublishMethod=FileSystem /p:DeleteExistingFiles=true /p:publishUrl=$publishDir
+
+          if (-not (Test-Path $publishDir)) {
+            Write-Error "❌ No se generó la carpeta de publicación."
+            exit 1
+          }
+
+      - name: 🔹 Verificar archivos publicados
+        shell: pwsh
+        run: |
+          $publishDir = "$Env:GITHUB_WORKSPACE\publish_output"
+          if (Test-Path $publishDir) {
+            Write-Host "✅ Archivos publicados correctamente en $publishDir"
+            Get-ChildItem $publishDir -Recurse | Select-Object FullName
+          } else {
+            Write-Error "❌ La carpeta publish_output no existe después del Publish."
+            exit 1
+          }
+
+      - name: 🔹 Crear ZIP del resultado
+        shell: pwsh
+        run: |
+          $zip = "$Env:GITHUB_WORKSPACE\web_publish.zip"
+          $publishDir = "$Env:GITHUB_WORKSPACE\publish_output"
+          if (Test-Path $zip) { Remove-Item $zip -Force }
+          Compress-Archive -Path "$publishDir\*" -DestinationPath $zip
+          Write-Host "📦 Archivo ZIP creado en: $zip"
+
+      - name: 🔹 Subir artefacto compilado
+        uses: actions/upload-artifact@v4
+        with:
+          name: WebPublishPackage
+          path: ${{ github.workspace }}\web_publish.zip
+
