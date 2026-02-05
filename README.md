@@ -118,6 +118,8 @@ JWT must be included in all secured requests:
 Authorization Header Required:
 Authorization: Bearer {token}
 ```
+![screenshot](assets/LogIn.png)
+Here you can see the Login Page
 
 ---
 
@@ -141,6 +143,40 @@ GET /api/logs/login
   }
 ]
 ```
+![screenshot](assets/ChangeLogStructure.png)
+This is the History logIn so you can know who and when entered the page
+## GET – ChangeLog History
+The normal endpoin that allow the administrator to see who modify certain register and specially when.
+```http
+GET /api/logs/changeLog
+```
+
+```json
+[
+{
+"id": 1,
+"userName": "Leo",
+"idUser": 1,
+"roleName": "admin",
+"nameTable": "UserData",
+"modDate": "2024-08-12T06:54:55.433",
+"DML": 2,
+"query": "UPDATE usersData SET name=TestingOTRAVEZ,email=elpapudepapus40@gmail.com,active=True,dateOut=01/01/1800 12:00:00 a. m.,bloqued=False WHERE id=8"
+},
+{
+"id": 2,
+"userName": "Leo",
+"idUser": 1,
+"roleName": "admin",
+"nameTable": "UserPermissions",
+"modDate": "2024-08-12T06:56:09.577",
+"DML": 2,
+"query": "UPDATE userPermissions SET idRole=3, driver=True, admin=False, permissionair=True, unit=True, sinister=True, extraData=True, changeLog=False, pdf=True WHERE idUser=8"
+},...
+]
+```
+![screenshot](assets/dialog_ChangeLog.png)
+
 ## GET – ErrorLog History
 When the Admin wants to know all the error that the web page has been having he can consult this endpoint
 while the user only sees a generic error the admin can see "where,when, how and especially by who"
@@ -172,37 +208,7 @@ GET /api/logs/errorLog
 },
 ]
 ```
-## GET – ChangeLog History
-The normal endpoin that allow the administrator to see who modify certain register and specially when.
-```http
-GET /api/logs/changeLog
-```
-
-```json
-[
-{
-"id": 1,
-"userName": "Leo",
-"idUser": 1,
-"roleName": "admin",
-"nameTable": "UserData",
-"modDate": "2024-08-12T06:54:55.433",
-"DML": 2,
-"query": "UPDATE usersData SET name=TestingOTRAVEZ,email=elpapudepapus40@gmail.com,active=True,dateOut=01/01/1800 12:00:00 a. m.,bloqued=False WHERE id=8"
-},
-{
-"id": 2,
-"userName": "Leo",
-"idUser": 1,
-"roleName": "admin",
-"nameTable": "UserPermissions",
-"modDate": "2024-08-12T06:56:09.577",
-"DML": 2,
-"query": "UPDATE userPermissions SET idRole=3, driver=True, admin=False, permissionair=True, unit=True, sinister=True, extraData=True, changeLog=False, pdf=True WHERE idUser=8"
-},...
-]
-```
-
+![screenshot](assets/dialog_ErrorLog.png)
 ---
 
 # 👤 USERS MODULE 
