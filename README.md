@@ -38,8 +38,8 @@ This API was designed following layered architecture principles, with JWT authen
   - [PUT – Edit Driver](#put-driver)
   - [DELETE – One Driver](#delete-driver)
 
-- [⚠️ Sinisters (Accidents)](#-sinisters-accidents)
-  - [POST – Register Accident](#-post--register-accident)
+- [⚠️ Sinisters (Accidents)](#sinister)
+  - [POST – Register Accident](#postSinister)
     
 - [Units](#units)
 - [Admins](#admins)
@@ -52,10 +52,10 @@ This API was designed following layered architecture principles, with JWT authen
 - [Data Arrays](#data-arrays)
 - [Images & Documents](#images-documents)
 
-- [🗄️ Database Structure](#-database-structure)
+- [🗄️ Database Structure](#bd)
 - [🚀 Running Locally](#-running-locally)
 - [🌐 Frontend Repository](#-frontend-repository)
-- [☁️ Production Deployment](#-production-deployment-enterprise-implementation)
+- [☁️ Production Deployment](#production)
 - [🧪 Future Improvements](#-future-improvements)
 
 
@@ -749,8 +749,10 @@ PUT /api/image
 ## DELETE – Delete Document
 DELETE /api/image/{id}
 
+<a id="sinister"></a>
 # ⚠️ Sinisters (Accidents)
 
+<a id="postSinister"></a>
 ## POST – Register Accident
 
 ```http
@@ -778,6 +780,7 @@ POST /api/sinisters
 ---
 
 
+<a id="bd"></a>
 # 🗄️ Database Structure
 
 • SQL Server relational database  
@@ -848,6 +851,8 @@ https://github.com/elkelvinx/CrudTaxis
 
 ---
 
+<a id="production"></a>
+
 # ☁️ Production Deployment (Enterprise Implementation)
 
 Production version deployed with:
@@ -871,4 +876,10 @@ Production version deployed with:
 
 # 📄 License
 
-MIT
+All Rights Reserved
+
+This software and its source code are the exclusive property of Kevin Antonio Ibarra Mondaca.
+
+No part of this software may be copied, modified, distributed, or used in any form without explicit written permission from the author.
+
+Unauthorized use, reproduction, or distribution of this software is strictly prohibited.
