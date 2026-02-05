@@ -504,6 +504,188 @@ Request:
 ```
 Soft delete (status change or logical flag).
 
+# 🚕 Units Module (Vehicles)
+
+Vehicle management module. Handles taxi units, their status, and relationships with drivers.
+
+## GET – Get All Units
+GET /api/unit
+
+## GET – Get Unit by Id
+GET /api/unit/{id}
+
+## POST – Create Unit
+POST /api/unit
+
+## PUT – Edit Unit
+PUT /api/unit
+
+## DELETE – Delete Unit
+DELETE /api/unit/{id}
+
+
+# 👑 Admin Module
+
+## GET – Get All Admins
+GET /api/admin
+
+## GET – Get Admin by Id
+GET /api/admin/{id}
+
+## POST – Create Admin
+POST /api/admin
+
+## PUT – Edit Admin
+PUT /api/admin
+
+## DELETE – Delete Admin
+DELETE /api/admin/{id}
+
+
+# 🚘 Model Module
+
+## GET – Get All Models
+GET /api/model
+
+## GET – Get Model by Id
+GET /api/model/{id}
+
+## POST – Create Model
+POST /api/model
+
+## PUT – Edit Model
+PUT /api/model
+
+## DELETE – Delete Model
+DELETE /api/model/{id}
+
+
+# 🏷️ Brand Module
+
+## GET – Get All Brands
+GET /api/brand
+
+## GET – Get Brand by Id
+GET /api/brand/{id}
+
+## POST – Create Brand
+POST /api/brand
+
+## PUT – Edit Brand
+PUT /api/brand
+
+## DELETE – Delete Brand
+DELETE /api/brand/{id}
+
+
+# 🔐 Permission Module
+
+## GET – Get All Permissions
+GET /api/permission
+
+## GET – Get Permission by Id
+GET /api/permission/{id}
+
+## POST – Create Permission
+POST /api/permission
+
+## PUT – Edit Permission
+PUT /api/permission
+
+## DELETE – Delete Permission
+DELETE /api/permission/{id}
+
+
+# 🛣️ Street Module
+
+## GET – Get All Streets
+GET /api/street
+
+## GET – Get Street by Id
+GET /api/street/{id}
+
+## POST – Create Street
+POST /api/street
+
+## PUT – Edit Street
+PUT /api/street
+
+## DELETE – Delete Street
+DELETE /api/street/{id}
+
+
+# 🏘️ Settlement Module
+
+## GET – Get All Settlements
+GET /api/settlement
+
+## GET – Get Settlement by Id
+GET /api/settlement/{id}
+
+## POST – Create Settlement
+POST /api/settlement
+
+## PUT – Edit Settlement
+PUT /api/settlement
+
+## DELETE – Delete Settlement
+DELETE /api/settlement/{id}
+
+
+# ☎️ ContactDriver Module
+
+## GET – Get All Contact Drivers
+GET /api/contactDriver
+
+## GET – Get Contact Driver by Id
+GET /api/contactDriver/{id}
+
+## POST – Create Contact Driver
+POST /api/contactDriver
+
+## PUT – Edit Contact Driver
+PUT /api/contactDriver
+
+## DELETE – Delete Contact Driver
+DELETE /api/contactDriver/{id}
+
+
+# 📊 DataArray Module
+
+## GET – Get All DataArrays
+GET /api/dataArray
+
+## GET – Get DataArray by Id
+GET /api/dataArray/{id}
+
+## POST – Create DataArray
+POST /api/dataArray
+
+## PUT – Edit DataArray
+PUT /api/dataArray
+
+## DELETE – Delete DataArray
+DELETE /api/dataArray/{id}
+
+
+# 🖼️ Image / Document Module
+
+## GET – Get All Documents
+GET /api/image
+
+## GET – Get Document by Id
+GET /api/image/{id}
+
+## POST – Upload Document
+POST /api/image
+
+## PUT – Edit Document Metadata
+PUT /api/image
+
+## DELETE – Delete Document
+DELETE /api/image/{id}
+
+
 # 📊 Dashboard Metrics
 Used for real-time dashboard charts in the frontend.
 ## GET api/home/driversKpi	
