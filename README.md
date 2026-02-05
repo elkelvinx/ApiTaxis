@@ -191,9 +191,15 @@ POST /api/users
 - License tracking
 - Emergency contact management
 - Relationship with vehicles and accident(Sinisters)
-- 
 ## GET- All drivers
-To get all the drivers and show them in the module with all of their data, excepting the Contact from the driver, in this case could be a Father, Mother, Wife, Son or even a brother
+To get all the drivers and show them in the module with all of their data, excepting the Contact from the driver, in this case could be:
+- Father
+  - GrandFather
+- Mother
+  - GrandMother
+- Wife
+- Son
+- Brother
 the system is made in a way that it can keep growing depending in what the user needs.
 
 ```http
@@ -235,7 +241,7 @@ GET /api/drivers
 ## GET Driver by Id
 
 To Search a specific Driver by the Id, it can be used in other modules, for example to bring a administrator that has many drivers in his relations
-because its a relation 1->N
+because its a relation **1->N**
 ```http
 GET /api/driver?id={id}
 ```
@@ -259,7 +265,12 @@ GET /api/driver?id={id}
 
 ---
 ## POST – Create Driver
-
+This will let us create a new driver, but in the beginning the system wont ask you for the contact driver.
+The correct flow will be like this
+```bash
+You create a new driver --> Sent to the API (ContactDriver = 0) --> The driver has been created and send back the "id"
+The user is searched by "id"--> Create a new ContactDriver --> Creates a new Contact Driver and also  'PUT' that id in the driver --> **Done**
+```
 ```http
 POST /api/driver
 ```
