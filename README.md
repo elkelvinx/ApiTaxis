@@ -1,4 +1,4 @@
-# 🚖 Taxis – Backend API (.NET Framework)
+# 🚖 Taxis Backend API (.NET Framework)
 
 Enterprise-style RESTful API built with .NET Framework for managing taxi fleets, drivers, accidents (sinisters), documents and role-based system users.
 
