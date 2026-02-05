@@ -67,33 +67,49 @@ This separation ensures maintainability, scalability, and clear responsibility b
 ## Login
 Authenticates a system user and returns a JWT token along with module-level permissions.
 ```http
-POST /api/auth/login
+POST /api/login/enter
 ```
 
 ### Request Body
 ```json
 {
   "name": "Kevin",
-  "password": "plainOrHashedPassword"
+  "password": "HighProgrammer"
 }
 ```
 
 ### Response
 ```json
 {
-  "token": "JWT_TOKEN",
-  "expiresIn": 3600,
-  "roleId": 3,
-  "permissions": {
-    "driver": true,
-    "admin": true,
-    "permissionair": true,
-    "unit": true,
-    "sinister": true,
-    "extraData": true,
-    "pdf": true
-  }
+    "IsSuccess": true,
+    "ErrorMessage": null,
+    "Token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1laWQiOiJMZW8iLCJpZFVzZXIiOiIxIiwicm9sZSI6ImFkbWluIiwiYWN0aXZlIjoiVHJ1ZSI
+    sImJsb3F1ZWQiOi..."
 }
+```
+### JWT decoded
+```json
+{
+  "nameid": "Kevin",
+  "idUser": "7",
+  "role": "admin",
+  "active": "True",
+  "bloqued": "False",
+  "Driver": "True",
+  "Admin": "True",
+  "Permissionaire": "True",
+  "Unit": "True",
+  "Sinister": "True",
+  "ExtraData": "True",
+  "Logs": "True",
+  "PDF": "True",
+  "nbf": 17702...,
+  "exp": 17702...,
+  "iat": 17702...,
+  "iss": "https://localhost:44319",
+  "aud": "https://localhost:44319"
+}
+
 ```
 
 JWT must be included in all secured requests:
@@ -116,7 +132,7 @@ Tables:
 - userPermissions
 - roles
 
-## GET – Paginated List
+## GET 
 
 ```http
 GET /api/users?page=1
@@ -341,6 +357,50 @@ Request:
 }
 ```
 Soft delete (status change or logical flag).
+
+# 🚖 Home Endpoint
+- Get the count of how many drivers that have enter
+- Get the count of  many sinisters occured in the month
+- -All this to be shown in a dashboard in the home component
+
+## GET api/home/driversKpi	
+in this case we will be using this data for the KPI Cards, just quick info for the administrator and the owner of the company
+```json
+{
+"CurrentMonth": 20,
+"PreviousMonth": 10,
+"Percentage": 100.0
+}
+```
+## GET api/home/sinistersKpi	
+in this case we will be using this data for the KPI Cards, just quick info for the administrator and the owner of the company
+```json
+{
+"CurrentMonth": 20,
+"PreviousMonth": 10,
+"Percentage": 100.0
+}
+```
+
+## POST api/home/driversRange	
+A range of time where the dash board will show you all the increases that the drivers had each month
+
+```json
+{
+"StartDate": "2022-02-04T20:24:29.3598897-07:00",
+"EndDate": "2026-02-04T20:24:29.3598897-07:00",
+}
+```
+## POST api/home/sinistersRange
+It will bring back a ARRAY where you will have every month and the total sinisters they had that month, with this it will allow us to verify the total increase of the sinisters
+and let us know wich month has more danger for the drivers.
+```json
+{
+"StartDate": "2022-02-04T20:24:29.3598897-07:00",
+"EndDate": "2026-02-04T20:24:29.3598897-07:00",
+}
+```
+
 
 # ⚠️ Sinisters (Accidents)
 
