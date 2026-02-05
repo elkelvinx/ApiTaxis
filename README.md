@@ -133,11 +133,11 @@ Tables:
 - roles
 
 ## GET 
+Returns users with their assigned permissions.
 
 ```http
 GET /api/users?page=1
 ```
-Returns users with their assigned permissions.
 
 ```json
 [
@@ -153,7 +153,7 @@ Returns users with their assigned permissions.
 ---
 
 ## POST – Create User (Admin Only)
-
+Only the admin will be able to do this, cause if another user wants to change his password is necessary to ask to the admin to do it, in this way all the passwords are known by the company, this was something the company ask us to do, due they are really association, becasue their business logic.
 ```http
 POST /api/users
 ```
@@ -191,12 +191,14 @@ POST /api/users
 - License tracking
 - Emergency contact management
 - Relationship with vehicles and accident(Sinisters)
+- 
 ## GET- All drivers
+To get all the drivers and show them in the module with all of their data, excepting the Contact from the driver, in this case could be a Father, Mother, Wife, Son or even a brother
+the system is made in a way that it can keep growing depending in what the user needs.
 
 ```http
 GET /api/drivers
 ```
-
 ```json
 [
 {
@@ -232,11 +234,11 @@ GET /api/drivers
 ---
 ## GET Driver by Id
 
+To Search a specific Driver by the Id, it can be used in other modules, for example to bring a administrator that has many drivers in his relations
+because its a relation 1->N
 ```http
 GET /api/driver?id={id}
 ```
-To Search a specific Driver by the Id, it can be used in other modules, for example to bring a administrator that has many drivers in his relations
-because its a relation 1->N
 ```json
 {
   "id": 1,
