@@ -121,6 +121,90 @@ Authorization: Bearer {token}
 
 ---
 
+
+# 📊 Logs Endpoint
+These endpoints needs to be given a jwt like others but in the API is verify that the one trying to access is a administrator and not someone else
+
+## GET – Login History
+If the Administrator wants to know if someone that shouldnt access in the web page at certain hours for example when the hours to works end there shouldnt have any access.
+or with this you can be sure if someone is trying strange things or even stealing the account from other user with more privilege
+```http
+GET /api/logs/login
+```
+
+```json
+[
+  {
+    "username": "admin",
+    "loginDate": "2026-01-15T08:30:22",
+    "ipAddress": "192.168.1.10"
+  }
+]
+```
+## GET – ErrorLog History
+When the Admin wants to know all the error that the web page has been having he can consult this endpoint
+while the user only sees a generic error the admin can see "where,when, how and especially by who"
+```http
+GET /api/logs/errorLog
+```
+
+```json
+[
+{
+"id": 1,
+"userName": "toppox",
+"idUser": 7,
+"nameTable": "Settlement",
+"MessageError": null,
+"DateError": "2024-08-13T21:19:53.28",
+"query": "insert into settlements (name) Values (Error)",
+"DML": 999
+},
+{
+"id": 2,
+"userName": "Leo",
+"idUser": 1,
+"nameTable": "HistoryLogIn",
+"MessageError": null,
+"DateError": "2024-08-23T02:27:04.493",
+"query": "update historyLogIn set exits = \"23/08/2024 02:26:52 a. m.\" where userName = \"Leo\" and exits is null",
+"DML": 69
+},
+]
+```
+## GET – ChangeLog History
+The normal endpoin that allow the administrator to see who modify certain register and specially when.
+```http
+GET /api/logs/changeLog
+```
+
+```json
+[
+{
+"id": 1,
+"userName": "Leo",
+"idUser": 1,
+"roleName": "admin",
+"nameTable": "UserData",
+"modDate": "2024-08-12T06:54:55.433",
+"DML": 2,
+"query": "UPDATE usersData SET name=TestingOTRAVEZ,email=elpapudepapus40@gmail.com,active=True,dateOut=01/01/1800 12:00:00 a. m.,bloqued=False WHERE id=8"
+},
+{
+"id": 2,
+"userName": "Leo",
+"idUser": 1,
+"roleName": "admin",
+"nameTable": "UserPermissions",
+"modDate": "2024-08-12T06:56:09.577",
+"DML": 2,
+"query": "UPDATE userPermissions SET idRole=3, driver=True, admin=False, permissionair=True, unit=True, sinister=True, extraData=True, changeLog=False, pdf=True WHERE idUser=8"
+},...
+]
+```
+
+---
+
 # 👤 USERS MODULE 
 - User registration (admin only)
 - Role management
@@ -374,18 +458,10 @@ Soft delete (status change or logical flag).
 # 🚖 Home Endpoint
 - Get the count of how many drivers that have enter
 - Get the count of  many sinisters occured in the month
-- -All this to be shown in a dashboard in the home component
-
+- - All this to be shown in a dashboard in the home component
+# 📊 Dashboard Metrics
+Used for real-time dashboard charts in the frontend.
 ## GET api/home/driversKpi	
-in this case we will be using this data for the KPI Cards, just quick info for the administrator and the owner of the company
-```json
-{
-"CurrentMonth": 20,
-"PreviousMonth": 10,
-"Percentage": 100.0
-}
-```
-## GET api/home/sinistersKpi	
 in this case we will be using this data for the KPI Cards, just quick info for the administrator and the owner of the company
 ```json
 {
@@ -404,6 +480,16 @@ A range of time where the dash board will show you all the increases that the dr
 "EndDate": "2026-02-04T20:24:29.3598897-07:00",
 }
 ```
+## GET api/home/sinistersKpi	
+in this case we will be using this data for the KPI Cards, just quick info for the administrator and the owner of the company
+```json
+{
+"CurrentMonth": 500,
+"PreviousMonth": 250,
+"Percentage": 100.0
+}
+```
+
 ## POST api/home/sinistersRange
 It will bring back a ARRAY where you will have every month and the total sinisters they had that month, with this it will allow us to verify the total increase of the sinisters
 and let us know wich month has more danger for the drivers.
@@ -443,46 +529,6 @@ POST /api/sinisters
 
 ---
 
-# 📊 Dashboard Metrics
-
-## GET – Monthly Growth
-
-```http
-GET /api/dashboard/monthly-growth?year=2026
-```
-
-```json
-{
-  "driversIncrease": 12,
-  "sinistersIncrease": 4,
-  "percentageGrowthDrivers": 8.4,
-  "percentageGrowthSinisters": 2.1
-}
-```
-
-Used for real-time dashboard charts in the frontend.
-
----
-
-# 📊 Logs Endpoint
-
-## GET – Login History
-
-```http
-GET /api/logs/login
-```
-
-```json
-[
-  {
-    "username": "admin",
-    "loginDate": "2026-01-15T08:30:22",
-    "ipAddress": "192.168.1.10"
-  }
-]
-```
-
----
 
 # 🗄️ Database Structure
 
