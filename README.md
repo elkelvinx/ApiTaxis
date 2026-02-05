@@ -1,14 +1,14 @@
-# 🚖 Taxis Backend API (.NET Framework)
+# 🚖 Taxis API (.NET Framework)
 
-Enterprise-style RESTful API built with .NET Framework for managing taxi fleets, drivers, accidents (sinisters), documents and role-based system users.
+Enterprise-grade RESTful API built with .NET Framework Web API for managing taxi operations, including drivers, vehicles, accidents (sinisters), documents, permissions, and audit logs.
 
-Designed with layered architecture, JWT authentication and production-ready Azure compatibility.
+This API was designed following layered architecture principles, with JWT authentication, role-based authorization, and SQL Server relational modeling, ready for production and cloud deployment.
 
 ---
 
-# 📌 System Overview
+# 📌 System Purpose
 
-This backend provides:
+The system centralizes operational control for a taxi company, allowing administrators to:
 
 • Secure authentication using JWT  
 • Role-based authorization (Admin / Basic User)  
@@ -41,8 +41,7 @@ Data Layer   → SQL Server interaction
 Auth Layer   → JWT security
 Logs Layer   → Auditing & traceability
 ```
-
-Designed for scalability and cloud deployment.
+This separation ensures maintainability, scalability, and clear responsibility boundaries.
 
 ---
 
@@ -66,7 +65,7 @@ Designed for scalability and cloud deployment.
 - Error logging for auditing and traceability
   
 ## Login
-
+Authenticates a system user and returns a JWT token along with module-level permissions.
 ```http
 POST /api/auth/login
 ```
@@ -106,7 +105,7 @@ Authorization: Bearer {token}
 
 ---
 
-# 👤 USERS MODULE (usersData + userPermissions + roles)
+# 👤 USERS MODULE 
 - User registration (admin only)
 - Role management
 - Secure password reset
@@ -122,6 +121,7 @@ Tables:
 ```http
 GET /api/users?page=1
 ```
+Returns users with their assigned permissions.
 
 ```json
 [
@@ -175,65 +175,172 @@ POST /api/users
 - License tracking
 - Emergency contact management
 - Relationship with vehicles and accident(Sinisters)
-## GET – Paginated
+## GET- All drivers
 
 ```http
-GET /api/drivers?page=1
+GET /api/drivers
 ```
 
 ```json
 [
-  {
-    "id": 15,
-    "fullName": "Juan Perez",
-    "licenseNumber": "A1234567",
-    "status": "Active",
-    "assignedUnit": "TX-204"
-  }
+{
+  "id": 1,
+  "name": "Antonio",
+  "lm1": "Ibarra",
+  "lm2": "Mondaca",
+  "birth": "2003-08-15T20:24:29.3598897-07:00",
+  "hireDate": "2025-02-04T20:24:29.3598897-07:00",
+  "lastModD": "2026-02-04T20:24:29.3598897-07:00",
+  "password": "SashaAlejandra",
+  "phone": "6683227452",
+  "settlement": 10,
+  "st1": 11,
+  "st2": 12,
+  "st3": 13,
+  "contactDrivers": 14,
+  "extNumber": 15,
+  "admin": 16,
+  "licenseEx": "2028-02-04T20:24:29.3598897-07:00",
+  "ingressPay": 300,
+  "status": 19,
+  "statusS": "Cerritos",
+  "street1": "Almeida",
+  "street2": "Costarales",
+  "street3": "Avenida Pasadena",
+  "settlementS": "Avenida Los angeles",
+  "adminName": "Humberto"
+}...
 ]
 ```
 
 ---
+## GET Driver by Id
 
+```http
+GET /api/driver?id={id}
+```
+To Search a specific Driver by the Id, it can be used in other modules, for example to bring a administrator that has many drivers in his relations
+because its a relation 1->N
+```json
+{
+  "id": 1,
+  "name": "Antonio",
+  "lm1": "Ibarra",
+  "lm2": "Mondaca",
+  "birth": "2003-08-15T20:24:29.3598897-07:00",
+  "hireDate": "2025-02-04T20:24:29.3598897-07:00",
+  "lastModD": "2026-02-04T20:24:29.3598897-07:00",
+  "password": "SashaAlejandra",
+  "phone": "6683227452",
+  "settlement": 10,
+  "st1": 11,
+  "st2": 12,
+  "st3": 13,...
+}
+```
+
+---
 ## POST – Create Driver
 
 ```http
-POST /api/drivers
+POST /api/driver
 ```
 
 ```json
 Request:
 {
-  "name": "Juan",
-  "lm1": "Perez",
-  "lm2": "Lopez",
-  "phone": "6681234567",
-  "st1": 9,
-  "st2": 10,
-  "st3": 11,
-  "settlement": 2,
-  "extNumber": 4567,
-  "birth": "1999-02-06",
-  "admin": 2,
-  "licenseEx": "2026-12-01",
-  "ingressPay": 1,
-  "status": 1
+  "id": 1,
+  "name": "sample string 2",
+  "lm1": "sample string 3",
+  "lm2": "sample string 4",
+  "birth": "2026-02-04T20:24:29.3598897-07:00",
+  "hireDate": "2026-02-04T20:24:29.3598897-07:00",
+  "lastModD": "2026-02-04T20:24:29.3598897-07:00",
+  "password": "sample string 8",
+  "phone": "sample string 9",
+  "settlement": 10,
+  "st1": 11,
+  "st2": 12,
+  "st3": 13,
+  "contactDrivers": 14,
+  "extNumber": 15,
+  "admin": 16,
+  "licenseEx": "2026-02-04T20:24:29.3598897-07:00",
+  "ingressPay": 18,
+  "status": 19,
+  "statusS": "sample string 20",
+  "street1": "sample string 21",
+  "street2": "sample string 22",
+  "street3": "sample string 23",
+  "settlementS": "sample string 24",
+  "adminName": "sample string 25"
 }
 ```
 
-### Response
 ```json
+### Response
 {
   "message": "Driver registered successfully",
   "statusCode": 201
 }
 ```
-DELETE
+---
+## PUT – EDIT Driver
+
+```http
+PUT /api/driver
+```
+```json
+Request:
+{
+  "id": 1,
+  "name": "sample string 2",
+  "lm1": "sample string 3",
+  "lm2": "sample string 4",
+  "birth": "2026-02-04T20:24:29.3598897-07:00",
+  "hireDate": "2026-02-04T20:24:29.3598897-07:00",
+  "lastModD": "2026-02-04T20:24:29.3598897-07:00",
+  "password": "sample string 8",
+  "phone": "sample string 9",
+  "settlement": 10,
+  "st1": 11,
+  "st2": 12,
+  "st3": 13,
+  "contactDrivers": 14,
+  "extNumber": 15,
+  "admin": 16,
+  "licenseEx": "2026-02-04T20:24:29.3598897-07:00",
+  "ingressPay": 18,
+  "status": 19,
+  "statusS": "sample string 20",
+  "street1": "sample string 21",
+  "street2": "sample string 22",
+  "street3": "sample string 23",
+  "settlementS": "sample string 24",
+  "adminName": "sample string 25"
+}
+```
+
+```json
+### Response
+{
+  "message": "Driver edited successfully",
+  "statusCode": 200
+}
+```
+## DELETE- one driver
+
 ```bash
-/api/drivers/{id}
+/api/driver/{id}
+```
+```json
+### Response
+{
+  "message": "Driver Deleted successfully",
+  "statusCode": 200
+}
 ```
 Soft delete (status change or logical flag).
----
 
 # ⚠️ Sinisters (Accidents)
 
