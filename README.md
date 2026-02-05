@@ -50,8 +50,9 @@ This separation ensures maintainability, scalability, and clear responsibility b
 • .NET Framework Web API  
 • Entity Framework  
 • SQL Server (Azure compatible)  
+• ADO.NET (SqlConnection / SqlCommand)
 • JWT Authentication  
-• Firebase Storage / Azure Blob Storage  
+• Azure Blob Storage  
 • GitHub Actions (CI/CD ready)  
 
 ---
@@ -293,7 +294,7 @@ To get all the drivers and show them in the module with all of their data, excep
 the system is made in a way that it can keep growing depending in what the user needs.
 
 ```http
-GET /api/drivers
+GET /api/driver
 ```
 ```json
 [
@@ -461,10 +462,6 @@ Request:
 ```
 Soft delete (status change or logical flag).
 
-# 🚖 Home Endpoint
-- Get the count of how many drivers that have enter
-- Get the count of  many sinisters occured in the month
-- - All this to be shown in a dashboard in the home component
 # 📊 Dashboard Metrics
 Used for real-time dashboard charts in the frontend.
 ## GET api/home/driversKpi	
@@ -557,7 +554,7 @@ git clone https://github.com/elkelvinx/ApiTaxis
 
 ## 2️⃣ Open solution in Visual Studio
 
-Open `.sln` file.
+Open `.sln` file with Visual Studio 2022+.
 
 ## 3️⃣ Configure Database Connection
 
@@ -575,7 +572,9 @@ Edit `web.config`:
 ```
 
 ## 4️⃣ Restore NuGet Packages
-
+From Visual Studio 
+  Tools -> NugGet Package Manager -> Restore
+or via conosle
 ```bash
 Update-Package -Reinstall
 ```
