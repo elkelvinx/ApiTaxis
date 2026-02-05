@@ -9,44 +9,55 @@ This API was designed following layered architecture principles, with JWT authen
 # 📑 Table of Contents
 
 - [📌 System Purpose](#-system-purpose)
-- [🏗️ Architecture](#-architecture)
+- [🏗️ Architecture](#architecture)
 - [🔧 Technologies](#-technologies)
 - [🔐 Authentication Flow](#-authentication-flow)
 
+- [📊 Dashboard Metrics](#-dashboard-metrics)
+  - [GET – Drivers KPI](#driverKPI)
+  - [GET – Sinisters KPI](#sinisterKPI)
+  - [POST – Drivers Range](#sinisterRange)
+  - [POST – Sinisters Range](#driverRange)
+
 - [📊 Logs Endpoint](#-logs-endpoint)
-  - [GET – Login History](#-get--login-history)
-  - [GET – ChangeLog History](#-get--changelog-history)
-  - [GET – ErrorLog History](#-get--errorlog-history)
+  - [GET – Login History](#login)
+  - [GET – ChangeLog History](#changelog)
+  - [GET – ErrorLog History](#errorlog)
 
 - [👤 USERS MODULE](#-users-module)
-  - [GET – Users](#-get)
-  - [POST – Create User](#-post--create-user-admin-only)
+  - [GET – Users](#get-user)
+  - [POST – Create User](#post-user)
   - [❌ MISSING – GET User by Id](#-missing--get-user-by-id)
   - [❌ MISSING – PUT Update User](#-missing--put-update-user)
   - [❌ MISSING – DELETE User](#-missing--delete-user)
 
 - [🚖 Drivers Endpoint](#-drivers-endpoint)
-  - [GET – All Drivers](#-get--all-drivers)
-  - [GET – Driver by Id](#-get-driver-by-id)
-  - [POST – Create Driver](#-post--create-driver)
-  - [PUT – Edit Driver](#-put--edit-driver)
-  - [DELETE – One Driver](#-delete--one-driver)
-
-- [📊 Dashboard Metrics](#-dashboard-metrics)
-  - [GET – Drivers KPI](#-get-apihomedriverskpi)
-  - [POST – Drivers Range](#-post-apihomedriversrange)
-  - [GET – Sinisters KPI](#-get-apihomesinisterskpi)
-  - [POST – Sinisters Range](#-post-apihomesinistersrang)
+  - [GET – All Drivers](#get-all-drivers)
+  - [GET – Driver by Id](#get-driver-by-id)
+  - [POST – Create Driver](#post-driver)
+  - [PUT – Edit Driver](#put-driver)
+  - [DELETE – One Driver](#delete-driver)
 
 - [⚠️ Sinisters (Accidents)](#-sinisters-accidents)
   - [POST – Register Accident](#-post--register-accident)
+    
+- [Units](#units)
+- [Admins](#admins)
+- [Models](#models)
+- [Brands](#brands)
+- [Permissions](#permissions)
+- [Streets](#streets)
+- [Settlements](#settlements)
+- [Contact Driver](#contact-driver)
+- [Data Arrays](#data-arrays)
+- [Images & Documents](#images-documents)
 
 - [🗄️ Database Structure](#-database-structure)
 - [🚀 Running Locally](#-running-locally)
 - [🌐 Frontend Repository](#-frontend-repository)
 - [☁️ Production Deployment](#-production-deployment-enterprise-implementation)
 - [🧪 Future Improvements](#-future-improvements)
-- [📄 License](#-license)
+
 
 # 📌 System Purpose
 
@@ -70,7 +81,7 @@ However, the production implementation was deployed using:
 • Firebase Storage / Azure Blob Storage  
 
 ---
-
+<a id="architecture"></a>
 # 🏗️ Architecture
 
 Layered architecture implementation:
@@ -167,9 +178,55 @@ Here you can see the Login Page
 ---
 
 
+# 📊 Dashboard Metrics
+Used for real-time dashboard charts in the frontend.
+
+<a id="driverKPI"></a>
+## GET api/home/driversKpi	
+in this case we will be using this data for the KPI Cards, just quick info for the administrator and the owner of the company
+```json
+{
+"CurrentMonth": 20,
+"PreviousMonth": 10,
+"Percentage": 100.0
+}
+```
+<a id="sinisterKPI"></a>
+## GET api/home/sinistersKpi	
+in this case we will be using this data for the KPI Cards, just quick info for the administrator and the owner of the company
+```json
+{
+"CurrentMonth": 500,
+"PreviousMonth": 250,
+"Percentage": 100.0
+}
+```
+<a id="driverRange"></a>
+## POST api/home/driversRange	
+A range of time where the dash board will show you all the increases that the drivers had each month
+
+```json
+{
+"StartDate": "2022-02-04T20:24:29.3598897-07:00",
+"EndDate": "2026-02-04T20:24:29.3598897-07:00",
+}
+```
+<a id="sinisterRange"></a>
+## POST api/home/sinistersRange
+It will bring back a ARRAY where you will have every month and the total sinisters they had that month, with this it will allow us to verify the total increase of the sinisters
+and let us know wich month has more danger for the drivers.
+```json
+{
+"StartDate": "2022-02-04T20:24:29.3598897-07:00",
+"EndDate": "2026-02-04T20:24:29.3598897-07:00",
+}
+```
+![screenshot](assets/HomePage.png)
+
+
 # 📊 Logs Endpoint
 These endpoints needs to be given a jwt like others but in the API is verify that the one trying to access is a administrator and not someone else
-
+<a id="login"></a>
 ## GET – Login History
 If the Administrator wants to know if someone that shouldnt access in the web page at certain hours for example when the hours to works end there shouldnt have any access.
 or with this you can be sure if someone is trying strange things or even stealing the account from other user with more privilege
@@ -188,6 +245,8 @@ GET /api/logs/login
 ```
 ![screenshot](assets/ChangeLogStructure.png)
 This is the History logIn so you can know who and when entered the page
+
+<a id="changelog"></a>
 ## GET – ChangeLog History
 The normal endpoin that allow the administrator to see who modify certain register and specially when.
 ```http
@@ -219,7 +278,7 @@ GET /api/logs/changeLog
 ]
 ```
 ![screenshot](assets/dialog_ChangeLog.png)
-
+<a id="errorlog"></a>
 ## GET – ErrorLog History
 When the Admin wants to know all the error that the web page has been having he can consult this endpoint
 while the user only sees a generic error the admin can see "where,when, how and especially by who"
@@ -264,7 +323,7 @@ Tables:
 - usersData
 - userPermissions
 - roles
-
+<a id="get-user"></a>
 ## GET 
 Returns users with their assigned permissions.
 
@@ -284,7 +343,7 @@ GET /api/users?page=1
 ```
 
 ---
-
+<a id="post-user"></a>
 ## POST – Create User (Admin Only)
 Only the admin will be able to do this, cause if another user wants to change his password is necessary to ask to the admin to do it, in this way all the passwords are known by the company, this was something the company ask us to do, due they are really association, becasue their business logic.
 ```http
@@ -324,6 +383,7 @@ POST /api/users
 - License tracking
 - Emergency contact management
 - Relationship with vehicles and accident(Sinisters)
+- <a id="get-all-drivers"></a>
 ## GET- All drivers
 To get all the drivers and show them in the module with all of their data, excepting the Contact from the driver, in this case could be:
 - Father
@@ -371,6 +431,7 @@ GET /api/driver
 ```
 
 ---
+<a id="get-driver-by-id"></a>
 ## GET Driver by Id
 
 To Search a specific Driver by the Id, it can be used in other modules, for example to bring a administrator that has many drivers in his relations
@@ -397,6 +458,7 @@ GET /api/driver?id={id}
 ```
 
 ---
+<a id="post-driver"></a>
 ## POST – Create Driver
 This will let us create a new driver, but in the beginning the system wont ask you for the contact driver.
 The correct flow will be like this
@@ -447,6 +509,7 @@ Request:
 }
 ```
 ---
+<a id="put-driver"></a>
 ## PUT – EDIT Driver
 
 ```http
@@ -490,6 +553,7 @@ Request:
   "statusCode": 200
 }
 ```
+<a id="delete-driver"></a>
 ## DELETE- one driver
 
 ```bash
@@ -684,49 +748,6 @@ PUT /api/image
 
 ## DELETE – Delete Document
 DELETE /api/image/{id}
-
-
-# 📊 Dashboard Metrics
-Used for real-time dashboard charts in the frontend.
-## GET api/home/driversKpi	
-in this case we will be using this data for the KPI Cards, just quick info for the administrator and the owner of the company
-```json
-{
-"CurrentMonth": 20,
-"PreviousMonth": 10,
-"Percentage": 100.0
-}
-```
-
-## POST api/home/driversRange	
-A range of time where the dash board will show you all the increases that the drivers had each month
-
-```json
-{
-"StartDate": "2022-02-04T20:24:29.3598897-07:00",
-"EndDate": "2026-02-04T20:24:29.3598897-07:00",
-}
-```
-## GET api/home/sinistersKpi	
-in this case we will be using this data for the KPI Cards, just quick info for the administrator and the owner of the company
-```json
-{
-"CurrentMonth": 500,
-"PreviousMonth": 250,
-"Percentage": 100.0
-}
-```
-
-## POST api/home/sinistersRange
-It will bring back a ARRAY where you will have every month and the total sinisters they had that month, with this it will allow us to verify the total increase of the sinisters
-and let us know wich month has more danger for the drivers.
-```json
-{
-"StartDate": "2022-02-04T20:24:29.3598897-07:00",
-"EndDate": "2026-02-04T20:24:29.3598897-07:00",
-}
-```
-
 
 # ⚠️ Sinisters (Accidents)
 
