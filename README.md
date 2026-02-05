@@ -6,6 +6,48 @@ This API was designed following layered architecture principles, with JWT authen
 
 ---
 
+# 📑 Table of Contents
+
+- [📌 System Purpose](#-system-purpose)
+- [🏗️ Architecture](#-architecture)
+- [🔧 Technologies](#-technologies)
+- [🔐 Authentication Flow](#-authentication-flow)
+
+- [📊 Logs Endpoint](#-logs-endpoint)
+  - [GET – Login History](#-get--login-history)
+  - [GET – ChangeLog History](#-get--changelog-history)
+  - [GET – ErrorLog History](#-get--errorlog-history)
+
+- [👤 USERS MODULE](#-users-module)
+  - [GET – Users](#-get)
+  - [POST – Create User](#-post--create-user-admin-only)
+  - [❌ MISSING – GET User by Id](#-missing--get-user-by-id)
+  - [❌ MISSING – PUT Update User](#-missing--put-update-user)
+  - [❌ MISSING – DELETE User](#-missing--delete-user)
+
+- [🚖 Drivers Endpoint](#-drivers-endpoint)
+  - [GET – All Drivers](#-get--all-drivers)
+  - [GET – Driver by Id](#-get-driver-by-id)
+  - [POST – Create Driver](#-post--create-driver)
+  - [PUT – Edit Driver](#-put--edit-driver)
+  - [DELETE – One Driver](#-delete--one-driver)
+
+- [📊 Dashboard Metrics](#-dashboard-metrics)
+  - [GET – Drivers KPI](#-get-apihomedriverskpi)
+  - [POST – Drivers Range](#-post-apihomedriversrange)
+  - [GET – Sinisters KPI](#-get-apihomesinisterskpi)
+  - [POST – Sinisters Range](#-post-apihomesinistersrang)
+
+- [⚠️ Sinisters (Accidents)](#-sinisters-accidents)
+  - [POST – Register Accident](#-post--register-accident)
+
+- [🗄️ Database Structure](#-database-structure)
+- [🚀 Running Locally](#-running-locally)
+- [🌐 Frontend Repository](#-frontend-repository)
+- [☁️ Production Deployment](#-production-deployment-enterprise-implementation)
+- [🧪 Future Improvements](#-future-improvements)
+- [📄 License](#-license)
+
 # 📌 System Purpose
 
 The system centralizes operational control for a taxi company, allowing administrators to:
